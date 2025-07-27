@@ -8,15 +8,40 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: VCPKG install
+    
+    - name: Install VCPKG and dependencies
+      id: vcpkg
       run: |
         git clone https://github.com/Microsoft/vcpkg.git
         cd vcpkg
         ./bootstrap-vcpkg.sh
+        ./vcpkg integrate install
         ./vcpkg install uthash kcp wolfssl
-        ./vcpkg export uthash kcp wolfssl --raw --output-dir=temp
+        
+        # Export the packages
+        EXPORT_PATH=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
+        echo "Export path: $EXPORT_PATH"
+        
+        # Extract the vcpkg.cmake path
+        VCPKG_TOOLCHAIN="$EXPORT_PATH/scripts/buildsystems/vcpkg.cmake"
+        echo "VCPKG_CMAKE_TOOLCHAIN=$VCPKG_TOOLCHAIN" >> $GITHUB_ENV
+        echo "VCPKG_EXPORT_PATH=$EXPORT_PATH" >> $GITHUB_ENV
+        
+        # Debug info
+        echo "Toolchain file: $VCPKG_TOOLCHAIN"
+        ls -la "$EXPORT_PATH/scripts/buildsystems/"
+
+    - name: Configure with CMake
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_CMAKE_TOOLCHAIN }} -DCMAKE_BUILD_TYPE=Release
+        
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release
