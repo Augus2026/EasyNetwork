@@ -20,6 +20,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd EasyNetwork\flutter\
+          flutter doctor
           flutter pub get
           flutter pub run ffigen --config ffigen.yaml
           
