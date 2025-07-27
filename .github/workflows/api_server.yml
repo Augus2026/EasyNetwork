@@ -20,7 +20,19 @@ jobs:
       run: |
         cd api_server
         cargo build --verbose
+        ls -lh ./target
     - name: Run tests
       run: |
         cd api_server
         cargo test --verbose
+    - name: Package and export
+      run: |
+        cd mtls_server
+        mkdir -p target/
+        cp release/api_server target/ 2>/dev/null || :
+        echo "PACKAGE_PATH=$(pwd)/target" >> $GITHUB_ENV
+    - name: Upload release package
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-server-release
+        path: ${{ env.PACKAGE_PATH }}
