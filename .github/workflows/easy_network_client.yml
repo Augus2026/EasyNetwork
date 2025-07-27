@@ -35,7 +35,6 @@ jobs:
       - name: Configure with CMake
         run: |
           echo "current pwd: $(pwd)"
-          ls -lh
           cd EasyNetwork\libEasyNetwork
           cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_CMAKE_TOOLCHAIN }}
           
@@ -43,7 +42,6 @@ jobs:
         run: |
           cd EasyNetwork\libEasyNetwork
           cmake --build ./build --config Release
-          ls -lh ./build
 
       # - name: Install dependencies
       #   run: |
