@@ -48,10 +48,10 @@ jobs:
       run: |
         cd mtls_server
         mkdir -p release/{bin,lib,config}
-        cp build/mtls_server release/bin/
-        cp build/*.so release/lib/
-        cp build/*.pem release/config/
-        cp build/*.der release/config/
+        cp build/mtls_server release/bin/ 2>/dev/null || :
+        cp build/*.so release/lib/ 2>/dev/null || :
+        cp build/*.pem release/config/ 2>/dev/null || :
+        cp build/*.der release/config/ 2>/dev/null || :
         tar czvf mtls-server-full.tar.gz release/*
         echo "PACKAGE_PATH=$(pwd)/mtls-server-full.tar.gz" >> $GITHUB_ENV
 
