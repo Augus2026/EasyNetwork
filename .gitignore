@@ -1,0 +1,5 @@
+EasyNetwork/libEasyNetwork/build/*
+.vscode/*
+kcp_server/build/*
+mtls_server/build/*
+api_server/target/*

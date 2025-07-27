@@ -1,0 +1,24 @@
+
+apt update
+apt install build-essential
+mkdir -p EA
+apt install lrzsz
+
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+ln -s /root/EA/vcpkg/vcpkg /usr/bin
+
+vcpkg list //这个命令可以列出已经安装的三方库。
+vcpkg search //这个命令可以列出vcpkg支持哪些三方库。
+vcpkg help triplet //指定编译某种架构的程序库,如不指定可使用如下命令查看vcpkg总共支持多少种架构
+vcpkg install ffmpeg[gpl]:x64-linux //指定安装某一架构的开源库，如Linux 64位
+
+vcpkg install uthash kcp wolfssl
+vcpkg export uthash kcp wolfssl --raw --output-dir=temp
+
+编写build.sh
+#!/bin/sh
+cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=/root/EA/vcpkg/temp/vcpkg-export-20250727-021314/scripts/buildsystems/vcpkg.cmake
+cmake --build ./build --config Release
+

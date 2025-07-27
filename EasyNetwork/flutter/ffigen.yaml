@@ -1,0 +1,21 @@
+name: 'EasyNetworkBindings'
+description: 'Bindings for easy_network_ffi.h'
+output: 'lib/generated/easy_network_bindings.dart'
+
+headers:
+  entry-points: 
+    - 'easy_network_ffi.h'
+
+comments:
+  style: 'any'
+  length: 'full'
+
+functions:
+  include:
+    - 'set_server'
+    - 'join_network'
+    - 'leave_network'
+    - 'add_route'
+    - 'clean_route'
+  exclude:
+    - 'internal_.*'
