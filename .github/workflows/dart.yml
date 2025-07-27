@@ -1,0 +1,29 @@
+name: easy network client
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          flutter: true
+
+      - name: Install dependencies
+        run: |
+          cd EasyNetwork\flutter\
+          flutter pub get
+          flutter pub run ffigen --config ffigen.yaml
+          
+      - name: Build Windows release
+        run: |
+          cd EasyNetwork\flutter\
+          flutter build windows --release
