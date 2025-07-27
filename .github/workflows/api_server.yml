@@ -1,4 +1,4 @@
-name: api-server
+name: api server
 
 on:
   push:
