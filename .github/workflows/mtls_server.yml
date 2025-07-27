@@ -43,7 +43,6 @@ jobs:
         cd mtls_server
         cmake --build ./build --config Release
         ls -lh ./build
-        - name: Create full release package
 
     - name: Package and export
       run: |
