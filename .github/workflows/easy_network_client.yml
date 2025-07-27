@@ -22,18 +22,15 @@ jobs:
         run: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
-          ./bootstrap-vcpkg.sh
-          ./vcpkg integrate install
-          ./vcpkg install uthash kcp wolfssl
-  
-          # Export and extract toolchain path
-          EXPORT_OUTPUT=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
-          echo "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
-          TOOLCHAIN_PATH=$(echo "$EXPORT_OUTPUT" | grep -oP 'CMAKE_TOOLCHAIN_FILE=\K[^ ]*')
-          echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
-          
-          # Debug output
-          echo "Extracted toolchain path: $TOOLCHAIN_PATH"
+          .\bootstrap-vcpkg.bat
+          .\vcpkg integrate install
+          .\vcpkg install uthash kcp wolfssl
+
+          $EXPORT_OUTPUT = .\vcpkg export uthash kcp wolfssl --raw --output=temp
+          Write-Output "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
+          $TOOLCHAIN_PATH = $EXPORT_OUTPUT | Select-String -Pattern "CMAKE_TOOLCHAIN_FILE=([^\s]+)" | ForEach-Object { $_.Matches.Groups[1].Value }
+          Write-Output "Extracted toolchain path: $TOOLCHAIN_PATH"
+          echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
   
       - name: Configure with CMake
         run: |
