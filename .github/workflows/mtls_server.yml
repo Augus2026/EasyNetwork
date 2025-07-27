@@ -47,12 +47,11 @@ jobs:
     - name: Package and export
       run: |
         cd mtls_server
-        mkdir -p target/{bin,lib,config}
-        cp build/mtls_server target/bin/ 2>/dev/null || :
-        cp build/*.so target/lib/ 2>/dev/null || :
-        cp build/*.pem target/config/ 2>/dev/null || :
-        cp build/*.der target/config/ 2>/dev/null || :
-        # tar czvf mtls-server-full.tar.gz -C release .
+        mkdir -p target/
+        cp build/mtls_server target/ 2>/dev/null || :
+        cp build/*.so target/ 2>/dev/null || :
+        cp build/*.pem target/ 2>/dev/null || :
+        cp build/*.der target/ 2>/dev/null || :
         echo "PACKAGE_PATH=$(pwd)/target" >> $GITHUB_ENV
 
     - name: Upload release package
