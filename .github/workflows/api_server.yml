@@ -20,14 +20,14 @@ jobs:
       run: |
         cd api_server
         cargo build --release --verbose
-        ls -lh ./target
+        ls -lh ./target/release/
     - name: Run tests
       run: |
         cd api_server
         cargo test --release --verbose
     - name: Package and export
       run: |
-        cd mtls_server
+        cd api_server
         mkdir -p target/
         cp release/api_server target/ 2>/dev/null || :
         echo "PACKAGE_PATH=$(pwd)/target" >> $GITHUB_ENV
