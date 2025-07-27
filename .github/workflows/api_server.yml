@@ -29,7 +29,7 @@ jobs:
       run: |
         cd api_server
         mkdir -p target2/
-        cp release/api_server target2/ 2>/dev/null || :
+        cp target/release/api_server target2/ 2>/dev/null || :
         echo "PACKAGE_PATH=$(pwd)/target2" >> $GITHUB_ENV
     - name: Upload release package
       uses: actions/upload-artifact@v4
