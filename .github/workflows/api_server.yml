@@ -19,12 +19,12 @@ jobs:
     - name: Build
       run: |
         cd api_server
-        cargo build --verbose
+        cargo build --release --verbose
         ls -lh ./target
     - name: Run tests
       run: |
         cd api_server
-        cargo test --verbose
+        cargo test --release --verbose
     - name: Package and export
       run: |
         cd mtls_server
