@@ -33,6 +33,8 @@ jobs:
 
     - name: Configure with CMake
       run: |
+        echo "current pwd: $pwd"
+        cd mtls_server
         mkdir -p build
         cd build
         cmake .. -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_CMAKE_TOOLCHAIN }} -DCMAKE_BUILD_TYPE=Release
