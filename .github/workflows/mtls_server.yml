@@ -24,6 +24,7 @@ jobs:
 
         # Export and extract toolchain path
         EXPORT_OUTPUT=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
+        echo "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
         TOOLCHAIN_PATH=$(echo "$EXPORT_OUTPUT" | grep -oP 'CMAKE_TOOLCHAIN_FILE=\K[^ ]*')
         echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
         
