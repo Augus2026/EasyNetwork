@@ -1,0 +1,44 @@
+name: mtls server
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install VCPKG and dependencies
+      id: vcpkg
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        ./bootstrap-vcpkg.sh
+        ./vcpkg integrate install
+        ./vcpkg install uthash kcp wolfssl
+
+        # Export and extract toolchain path
+        EXPORT_OUTPUT=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
+        echo "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
+        TOOLCHAIN_PATH=$(echo "$EXPORT_OUTPUT" | grep -oP 'CMAKE_TOOLCHAIN_FILE=\K[^ ]*')
+        echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
+        
+        # Debug output
+        echo "Extracted toolchain path: $TOOLCHAIN_PATH"
+
+    - name: Configure with CMake
+      run: |
+        echo "current pwd: $(pwd)"
+        ls -lh
+        cd mtls_server
+        cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_CMAKE_TOOLCHAIN }}
+        
+    - name: Build
+      run: |
+        cd mtls_server
+        cmake --build ./build --config Release
