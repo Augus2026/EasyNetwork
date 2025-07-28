@@ -62,7 +62,7 @@ jobs:
         run: |
           cd EasyNetwork/flutter/
           mkdir -p target/
-          cp build/windows/x64/runner/Release/* target/ 2>/dev/null || :
+          cp -r build/windows/x64/runner/Release/* target/ 2>/dev/null || :
           echo "PACKAGE_PATH=$(pwd)/target" >> $GITHUB_ENV
 
       - name: Upload release package
