@@ -54,3 +54,17 @@ jobs:
         run: |
           cd EasyNetwork\flutter\
           flutter build windows --release
+          ll -lh build\windows\x64\runner\Release\
+
+      - name: Package and export
+        run: |
+          cd EasyNetwork\flutter\
+          mkdir -p target\
+          cp build\windows\x64\runner\Release\* target\ 2>/dev/null || :
+          echo "PACKAGE_PATH=$(pwd)\target" >> $GITHUB_ENV
+
+      - name: Upload release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: mtls-server-release
+          path: ${{ env.PACKAGE_PATH }}
