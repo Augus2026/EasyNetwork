@@ -55,7 +55,7 @@ jobs:
         run: |
           cd EasyNetwork\flutter\
           flutter build windows --release
-          ll -lh build\windows\x64\runner\Release\
+          ls build\windows\x64\runner\Release\
 
       - name: Package and export
         shell: bash
