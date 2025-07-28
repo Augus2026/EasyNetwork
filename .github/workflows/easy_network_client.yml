@@ -51,12 +51,14 @@ jobs:
           flutter pub run ffigen --config ffigen.yaml
           
       - name: Build Windows release
+        shell: bash
         run: |
           cd EasyNetwork\flutter\
           flutter build windows --release
           ll -lh build\windows\x64\runner\Release\
 
       - name: Package and export
+        shell: bash
         run: |
           cd EasyNetwork\flutter\
           mkdir -p target\
