@@ -50,7 +50,7 @@ jobs:
           flutter pub get
           flutter pub run ffigen --config ffigen.yaml
           
-      # - name: Build Windows release
-      #   run: |
-      #     cd EasyNetwork\flutter\
-      #     flutter build windows --release
+      - name: Build Windows release
+        run: |
+          cd EasyNetwork\flutter\
+          flutter build windows --release
