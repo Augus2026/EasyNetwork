@@ -62,11 +62,11 @@ jobs:
         run: |
           cd EasyNetwork/flutter/
           mkdir -p target/
-          cp -r build/windows/x64/runner/Release/* target/ 2>/dev/null || :
+          cp -r build/windows/x64/runner/Release/* target/
           echo "PACKAGE_PATH=$(pwd)/target" >> $GITHUB_ENV
 
       - name: Upload release package
         uses: actions/upload-artifact@v4
         with:
-          name: mtls-server-release
+          name: flutter-client-release
           path: ${{ env.PACKAGE_PATH }}
