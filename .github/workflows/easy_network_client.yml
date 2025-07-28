@@ -53,17 +53,17 @@ jobs:
       - name: Build Windows release
         shell: bash
         run: |
-          cd EasyNetwork\flutter\
+          cd EasyNetwork/flutter/
           flutter build windows --release
-          ls build\windows\x64\runner\Release\
+          ls build/windows/x64/runner/Release/
 
       - name: Package and export
         shell: bash
         run: |
-          cd EasyNetwork\flutter\
-          mkdir -p target\
-          cp build\windows\x64\runner\Release\* target\ 2>/dev/null || :
-          echo "PACKAGE_PATH=$(pwd)\target" >> $GITHUB_ENV
+          cd EasyNetwork/flutter/
+          mkdir -p target/
+          cp build/windows/x64/runner/Release/* target/ 2>/dev/null || :
+          echo "PACKAGE_PATH=$(pwd)/target" >> $GITHUB_ENV
 
       - name: Upload release package
         uses: actions/upload-artifact@v4
