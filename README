@@ -22,3 +22,5 @@ vcpkg export uthash kcp wolfssl --raw --output-dir=temp
 cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=/root/EA/vcpkg/temp/vcpkg-export-20250727-021314/scripts/buildsystems/vcpkg.cmake
 cmake --build ./build --config Release
 
+http://192.168.1.176:1001/api/v1/endpoints
+http://192.168.1.176:1001/api/v1/networks/default/members

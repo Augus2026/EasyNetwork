@@ -8,6 +8,10 @@ mod network_join;
 mod network_leave;
 mod route_list;
 mod member_online_status;
+mod endpoint_list;
+use endpoint_list::get_all_endpoints_handler;
+mod network_member_list;
+use network_member_list::get_all_network_members_handler;
 
 use sysinfo::report_sysinfo;
 use network_members::get_network_members;
@@ -35,6 +39,8 @@ async fn main() -> std::io::Result<()> {
             .service(get_route_list)
             .service(update_member_online_status)
             .service(update_online_status)
+            .service(get_all_endpoints_handler)
+            .service(get_all_network_members_handler)
     })
     .bind(format!("{}:{}", server_ip, port))?
     .run()

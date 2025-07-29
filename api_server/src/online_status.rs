@@ -1,7 +1,7 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use validator::Validate;
-use crate::config::{EndpointStatus, EndpointDeviceInfo, ENDPOINT_STATUS};
+use crate::config::ENDPOINT_STATUS;
 
 #[derive(Debug, Deserialize, Validate)]
 struct OnlineStatusRequest {

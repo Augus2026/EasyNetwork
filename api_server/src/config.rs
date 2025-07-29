@@ -1,9 +1,10 @@
+use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 
 // 操作系统信息
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct EndpointDeviceInfo {
     // 设备规格
     pub computer_name: String,
@@ -22,6 +23,7 @@ pub struct EndpointDeviceInfo {
 }
 
 // 终端状态
+#[derive(Debug, Clone, Serialize)]
 pub struct EndpointStatus {
     pub uuid: String,
     pub deviceInfo: EndpointDeviceInfo,
@@ -29,6 +31,7 @@ pub struct EndpointStatus {
 }
 
 // 网络成员状态
+#[derive(Debug, Clone, Serialize)]
 pub struct NetworkMemberStatus {
     // 成员最后更新时间
     pub last_updated: chrono::DateTime<chrono::Utc>,
@@ -45,4 +48,13 @@ lazy_static! {
 }
 
 // 获取所有终端信息
-// 获取所有网络成员状态
+pub fn get_all_endpoints() -> Vec<EndpointStatus> {
+    let status_map = ENDPOINT_STATUS.lock().unwrap();
+    status_map.values().cloned().collect()
+}
+
+// 获取所有网络成员
+pub fn get_all_network_members(network_name: &str) -> Option<HashMap<String, NetworkMemberStatus>> {
+    let status_map = NETWORK_STATUS.lock().unwrap();
+    status_map.get(network_name).cloned()
+}

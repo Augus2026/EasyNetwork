@@ -1,6 +1,6 @@
 use actix_web::{get, web, HttpResponse, Responder};
 use chrono::{DateTime, Utc};
-use serde::{Serialize, Deserialize};
+use serde::Serialize;
 
 use crate::config::NETWORK_STATUS;
 
