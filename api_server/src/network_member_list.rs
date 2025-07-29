@@ -15,7 +15,7 @@ struct ErrorResponse {
     error: String,
 }
 
-#[get("/api/v1/networks/{network_name}/members")]
+#[get("/api/v2/networks/{network_name}/members")]
 async fn get_all_network_members_handler(path: web::Path<String>) -> impl Responder {
     let network_name = path.into_inner();
     

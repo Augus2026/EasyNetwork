@@ -1,8 +1,10 @@
 use actix_web::{post, web, HttpResponse, Responder};
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 use std::sync::atomic::{AtomicU8, Ordering};
+use std::collections::HashMap;
+use crate::config::{InterfaceInfo, ServerInfo, NetworkMemberStatus, NETWORK_STATUS};
 
 // 在文件顶部添加原子计数器，初始值为100
 static IP_COUNTER: AtomicU8 = AtomicU8::new(100);
@@ -14,29 +16,6 @@ struct JoinRequest {
     
     #[validate(length(min = 1, message = "network_name cannot be empty"))]
     network_name: String,
-}
-
-#[derive(Debug, Serialize)]
-struct InterfaceInfo {
-    name: String,
-    desc: String,
-    // interface settings
-    ipv4_address: String,
-    subnet_mask: String,
-    // mtu settings
-    mtu: i32,
-    // dns settings
-    domain: String,
-    name_server: String,
-    search_list: String,
-}
-
-#[derive(Debug, Serialize)]
-struct ServerInfo {
-    reply_address: String,
-    reply_port: String,
-    expires_at: DateTime<Utc>,
-    expires: String,
 }
 
 #[derive(Debug, Serialize)]
@@ -101,6 +80,17 @@ async fn join_network(body: web::Json<JoinRequest>) -> impl Responder {
             expires: "24h".to_string(),
         },
     };
+
+    // 更新NETWORK_STATUS
+    let mut network_status = NETWORK_STATUS.lock().unwrap();
+    let network = network_status.entry(body.network_name.clone())
+        .or_insert_with(|| HashMap::new());
+    
+    network.insert(body.device_id.clone(), NetworkMemberStatus {
+        last_updated: chrono::Utc::now(),
+        interface: response_data.interface.clone(),
+        server: response_data.server.clone()
+    });
 
     HttpResponse::Ok().json(SuccessResponse {
         status: "success".to_string(),

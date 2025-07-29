@@ -1,6 +1,7 @@
 use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Mutex;
+use chrono::{DateTime, Utc};
 use lazy_static::lazy_static;
 
 // 操作系统信息
@@ -30,16 +31,38 @@ pub struct EndpointStatus {
     pub last_updated: chrono::DateTime<chrono::Utc>,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct InterfaceInfo {
+    pub name: String,
+    pub desc: String,
+    // interface settings
+    pub ipv4_address: String,
+    pub subnet_mask: String,
+    // mtu settings
+    pub mtu: i32,
+    // dns settings
+    pub domain: String,
+    pub name_server: String,
+    pub search_list: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct ServerInfo {
+    pub reply_address: String,
+    pub reply_port: String,
+    pub expires_at: DateTime<Utc>,
+    pub expires: String,
+}
+
 // 网络成员状态
 #[derive(Debug, Clone, Serialize)]
 pub struct NetworkMemberStatus {
     // 成员最后更新时间
     pub last_updated: chrono::DateTime<chrono::Utc>,
-
     // 接口信息
-
-    // 路由信息
-
+    pub interface: InterfaceInfo,
+    // 服务器信息
+    pub server: ServerInfo,
 }
 
 lazy_static! {

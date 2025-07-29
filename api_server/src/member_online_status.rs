@@ -6,6 +6,8 @@ use std::collections::HashMap;
 use crate::config::{
     NetworkMemberStatus,
     NETWORK_STATUS,
+    InterfaceInfo,
+    ServerInfo,
 };
 
 #[derive(Debug, Deserialize, Validate)]
@@ -59,6 +61,22 @@ async fn update_device_online(network_name: &str, device_id: &str) -> bool {
     let network: &mut HashMap<String, NetworkMemberStatus> = network_status.entry(network_name.to_string()).or_insert_with(HashMap::new);
     let network_status = network.entry(device_id.to_string()).or_insert_with(|| NetworkMemberStatus {
         last_updated: chrono::Utc::now(),
+        interface: InterfaceInfo {
+            name: "".to_string(),
+            desc: "".to_string(),
+            ipv4_address: "".to_string(),
+            subnet_mask: "".to_string(),
+            mtu: 0,
+            domain: "".to_string(),
+            name_server: "".to_string(),
+            search_list: "".to_string(),
+        },
+        server: ServerInfo {
+            reply_address: "".to_string(),
+            reply_port: "".to_string(),
+            expires_at: chrono::Utc::now(),
+            expires: "".to_string(),
+        },
     });
     network_status.last_updated = chrono::Utc::now();
     true
