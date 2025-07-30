@@ -2,6 +2,8 @@ name: mtls server
 
 on:
   push:
+    tags:
+      - 'v*'
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
@@ -9,9 +11,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      release_ready: ${{ steps.tag_check.outputs.is_release }}
 
     steps:
     - uses: actions/checkout@v4
+
+    # 检查是否为发布tag
+    - name: Check for release tag
+      id: tag_check
+      run: |
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          echo "is_release=true" >> $GITHUB_OUTPUT
+        else
+          echo "is_release=false" >> $GITHUB_OUTPUT
+        fi
     
     - name: Install VCPKG and dependencies
       id: vcpkg
@@ -59,3 +73,32 @@ jobs:
       with:
         name: mtls-server-release
         path: ${{ env.PACKAGE_PATH }}
+  # 发布版本任务
+  release:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mtls-server-release
+          path: release-artifacts
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            MTLS Server 版本发布
+            - 构建时间: ${{ steps.get-current-date.outputs.date }}
+          files: |
+            release-artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get current date
+        id: get-current-date
+        run: echo "date=$(date)" >> $GITHUB_OUTPUT
