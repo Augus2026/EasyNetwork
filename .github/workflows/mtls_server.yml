@@ -67,7 +67,7 @@ jobs:
         cp build/*.pem release/ 2>/dev/null || :
         cp build/*.der release/ 2>/dev/null || :
         tar czvf mtls-server-release.tar.gz -C release .
-        echo "PACKAGE_PATH=$(pwd)/release" >> $GITHUB_ENV
+        echo "PACKAGE_PATH=$(pwd)/mtls-server-release.tar.gz" >> $GITHUB_ENV
 
     - name: Upload release package
       uses: actions/upload-artifact@v4
