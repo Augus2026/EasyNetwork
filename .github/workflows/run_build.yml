@@ -156,3 +156,48 @@ jobs:
         with:
           name: flutter-client-release
           path: ${{ env.PACKAGE_PATH }}
+
+  # 发布版本
+  release:
+    needs: [build-mtls-server, build-api-server, build-flutter]  # 依赖所有构建任务
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download mtls server artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mtls-server-release
+          path: release-artifacts/mtls-server
+
+      - name: Download api server artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-server-release
+          path: release-artifacts/api-server
+
+      - name: Download flutter client artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: flutter-client-release
+          path: release-artifacts/flutter-client
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            EasyNetwork 全组件版本发布
+            - 包含: MTLS Server, API Server 和 Flutter Client
+            - 构建时间: ${{ steps.get-current-date.outputs.date }}
+          files: |
+            release-artifacts/mtls-server/*
+            release-artifacts/api-server/*
+            release-artifacts/flutter-client/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get current date
+        id: get-current-date
+        run: echo "date=$(date)" >> $GITHUB_OUTPUT
