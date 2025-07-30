@@ -17,14 +17,7 @@ jobs:
       - name: Delete old workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # 使用默认token即可
-          repository: ${{ github.repository }}  # 自动获取当前仓库
-          retain_days: 0  # 保留最近0天的记录
-          keep_minimum_runs: 3  # 至少保留3次运行记录
-        
-      - name: Delete deployment
-        uses: strumwolf/delete-deployment-environment@v2.3.0
-        with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          environment: github-pages
-          onlyRemoveDeployments: true
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 3
