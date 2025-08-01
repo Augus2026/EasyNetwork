@@ -12,13 +12,8 @@ env:
 jobs:
   # binary build
   build:
-    name: Build - ${{ matrix.job.name }}
-    runs-on: ubuntu-20.04
-    strategy:
-      fail-fast: false
-      matrix:
-        job:
-          - { name: "arm64v8", target: "aarch64-unknown-linux-musl" }
+    name: Build - arm64v8
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -34,24 +29,24 @@ jobs:
           default: true
           components: rustfmt
           profile: minimal
-          target: ${{ matrix.job.target }}
+          target: aarch64-unknown-linux-musl
 
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features --target=${{ matrix.job.target }}
+          args: --release --all-features --target=aarch64-unknown-linux-musl
           use-cross: true
           working-directory: api_server 
 
       - name: Exec chmod
         run: |
           cd api_server
-          chmod -v a+x target/${{ matrix.job.target }}/release/*
+          chmod -v a+x target/aarch64-unknown-linux-musl/release/*
 
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-linux-${{ matrix.job.name }}
-          path: api_server/target/${{ matrix.job.target }}/release/api_server
+          name: binaries-linux-arm64v8
+          path: api_server/target/aarch64-unknown-linux-musl/release/api_server
           if-no-files-found: error
