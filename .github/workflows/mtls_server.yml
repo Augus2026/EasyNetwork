@@ -1,0 +1,77 @@
+name: run build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-mtls-server:
+    runs-on: ubuntu-latest
+
+    outputs:
+      release_ready: ${{ steps.tag_check.outputs.is_release }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install ARM cross-compilation toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+    - name: Install VCPKG and dependencies
+      id: vcpkg
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        ./bootstrap-vcpkg.sh
+        ./vcpkg integrate install
+        ./vcpkg install uthash kcp wolfssl --triplet arm64-linux-gnu
+
+        # Export and extract toolchain path
+        EXPORT_OUTPUT=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
+        echo "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
+        TOOLCHAIN_PATH=$(echo "$EXPORT_OUTPUT" | grep -oP 'CMAKE_TOOLCHAIN_FILE=\K[^ ]*')
+        echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
+        
+        # Debug output
+        echo "Extracted toolchain path: $TOOLCHAIN_PATH"
+
+    - name: Configure with CMake
+      run: |
+        echo "current pwd: $(pwd)"
+        ls -lh
+        cd mtls_server
+        cmake -S ./ -B ./build \
+          -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_CMAKE_TOOLCHAIN }} \
+          -DCMAKE_SYSTEM_NAME=Linux \
+          -DCMAKE_SYSTEM_PROCESSOR=arm64 \
+          -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+          -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+
+    - name: Build
+      run: |
+        cd mtls_server
+        cmake --build ./build --config Release
+        ls -lh ./build
+
+    - name: Package and export
+      run: |
+        cd mtls_server
+        mkdir -p release/
+        cp build/mtls_server release/ 2>/dev/null || :
+        cp build/*.so release/ 2>/dev/null || :
+        cp build/*.pem release/ 2>/dev/null || :
+        cp build/*.der release/ 2>/dev/null || :
+        tar czvf mtls-server-release.tar.gz -C release .
+        echo "PACKAGE_PATH=$(pwd)/mtls-server-release.tar.gz" >> $GITHUB_ENV
+
+    - name: Upload release package
+      uses: actions/upload-artifact@v4
+      with:
+        name: mtls-server-release
+        path: ${{ env.PACKAGE_PATH }}
