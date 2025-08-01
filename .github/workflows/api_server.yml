@@ -14,7 +14,7 @@ env:
 jobs:
   # binary build
   build-arm64v8:
-    name: Build - arm64v8
+    name: Build - aarch64
     runs-on: ubuntu-latest
 
     steps:
@@ -31,29 +31,29 @@ jobs:
           default: true
           components: rustfmt
           profile: minimal
-          target: mips-unknown-linux-gnu
+          target: aarch64-unknown-linux-gnu
 
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --manifest-path=./api_server/Cargo.toml --release --all-features --target=mips-unknown-linux-gnu
+          args: --manifest-path=./api_server/Cargo.toml --release --all-features --target=aarch64-unknown-linux-gnu
           use-cross: true
 
       - name: Exec chmod
         run: |
           cd api_server
-          chmod -v a+x target/mips-unknown-linux-gnu/release/*
+          chmod -v a+x target/aarch64-unknown-linux-gnu/release/*
 
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-linux-mips
-          path: api_server/target/mips-unknown-linux-gnu/release/api_server
+          name: binaries-linux-aarch64
+          path: api_server/target/aarch64-unknown-linux-gnu/release/api_server
           if-no-files-found: error
 
-  build-mips:
-    name: Build - mips
+  build-mipsel:
+    name: Build - mipsel
     runs-on: ubuntu-latest
 
     steps:
@@ -70,23 +70,23 @@ jobs:
           default: true
           components: rustfmt
           profile: minimal
-          target: mips-unknown-linux-gnu
+          target: mipsel-unknown-linux-musl
 
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --manifest-path=./api_server/Cargo.toml --release --all-features --target=mips-unknown-linux-gnu
+          args: --manifest-path=./api_server/Cargo.toml --release --all-features --target=mipsel-unknown-linux-musl
           use-cross: true
 
       - name: Exec chmod
         run: |
           cd api_server
-          chmod -v a+x target/mips-unknown-linux-gnu/release/*
+          chmod -v a+x target/mipsel-unknown-linux-musl/release/*
 
       - name: Publish Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binaries-linux-mips
-          path: api_server/target/mips-unknown-linux-gnu/release/api_server
+          name: binaries-linux-mipsel
+          path: api_server/target/mipsel-unknown-linux-musl/release/api_server
           if-no-files-found: error
