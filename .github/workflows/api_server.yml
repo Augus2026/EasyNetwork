@@ -37,9 +37,8 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features --target=aarch64-unknown-linux-musl
+          args: --manifest-path=./api_server/Cargo.toml --release --all-features --target=aarch64-unknown-linux-musl
           use-cross: true
-          working-directory: api_server 
 
       - name: Exec chmod
         run: |
