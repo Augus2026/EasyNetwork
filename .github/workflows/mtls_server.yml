@@ -30,7 +30,7 @@ jobs:
         cd vcpkg
         ./bootstrap-vcpkg.sh
         ./vcpkg integrate install
-        ./vcpkg install uthash kcp wolfssl --triplet arm64-linux-gnu
+        ./vcpkg install uthash kcp wolfssl --triplet arm64-linux
 
         # Export and extract toolchain path
         EXPORT_OUTPUT=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
