@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'generated/easy_network_bindings.dart';
+import 'config.dart';
 
 class EasyNetworkFFI {
   late final EasyNetworkBindings _bindings;
@@ -28,7 +29,16 @@ class EasyNetworkFFI {
   }
 
   Future<void> setServer(String replyAddress, int replyPort) async {
-    print('[EasyNetwork] Setting server: $replyAddress:$replyPort');
+    String addr = await get_reply_server_address();
+    if(addr != "") {
+      List<String> list = addr.split(":");
+      replyAddress = list[0];
+      replyPort = int.parse(list[1]);
+      print('[EasyNetwork] Force setting server: $replyAddress:$replyPort');
+    } else {
+      print('[EasyNetwork] Setting server: $replyAddress:$replyPort');
+    }
+    
     final addressPtr = replyAddress.toNativeUtf8();
     try {
       _bindings.set_server(

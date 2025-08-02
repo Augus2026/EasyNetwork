@@ -4,13 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:system_info/system_info.dart';
-
-String server_address = "cn-easy-network.com";
-String server_port = "1001";
-
-String get_server_address() {
-  return '$server_address:$server_port';
-}
+import 'config.dart';
 
 Future<Map<String, dynamic>> _getDeviceInfo() async {
   final deviceInfo = DeviceInfoPlugin();
@@ -54,7 +48,7 @@ Future<bool> report_sysinfo({
   required String uuid,
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/sysinfo');
     final headers = {
       'Accept': 'application/json',
@@ -90,7 +84,7 @@ Future<bool> update_online_status({
   required String uuid,
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/online_status');
     final headers = {
       'Accept': 'application/json',
@@ -126,7 +120,7 @@ Future<bool> update_member_online_status({
   required String networkName
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/member_online_status');
     final headers = {
       'Accept': 'application/json',
@@ -162,7 +156,7 @@ Future<List<Map<String, dynamic>>> get_network_members({
   required String networkId,
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/networks/$networkId/members');
     final headers = {
       'Accept': 'application/json',
@@ -199,7 +193,7 @@ Future<Map<String, dynamic>> joinNetwork({
   required String networkName,
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/networks/join');
     final headers = {
       'Accept': 'application/json',
@@ -235,7 +229,7 @@ Future<void> leaveNetwork({
   required String networkName,
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/networks/leave');
     final headers = {
       'Accept': 'application/json',
@@ -270,7 +264,7 @@ Future<List<Map<String, dynamic>>> update_route({
   required String networkName,
 }) async {
   try {
-    String domain = get_server_address();
+    String domain = await get_api_server_address();
     final url = Uri.parse('http://$domain/api/v1/route_list');
     final headers = {
       'Accept': 'application/json',
