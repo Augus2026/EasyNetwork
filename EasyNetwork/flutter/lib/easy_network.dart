@@ -5,6 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'easy_network_http.dart';
 import 'easy_network_ffi.dart';
 import 'package:uuid/uuid.dart';
+import 'pages/settings_page.dart';
 
 Timer startPeriodicTask({
   required Function task,
@@ -475,6 +476,17 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
