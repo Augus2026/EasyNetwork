@@ -12,7 +12,6 @@ Future<String> get_api_server_address() async {
     server_address = prefs.getString('apiServerIp') ?? '';
     server_port = prefs.getInt('apiServerPort')?.toString() ?? '';
   }
-
   return '$server_address:$server_port';
 }
 
@@ -30,7 +29,6 @@ Future<String> get_reply_server_address() async {
   if(server_address == "" || server_port == "") {
     return "";
   }
-
   return '$server_address:$server_port';
 }
 
