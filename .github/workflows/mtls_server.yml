@@ -31,20 +31,13 @@ jobs:
         ./bootstrap-vcpkg.sh
         ./vcpkg integrate install
         ./vcpkg install uthash kcp wolfssl --triplet arm64-linux
-
-        # Export and extract toolchain path
-        EXPORT_OUTPUT=$(./vcpkg export uthash kcp wolfssl --raw --output=temp)
-        echo "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
-        TOOLCHAIN_PATH=$(echo "$EXPORT_OUTPUT" | grep -oP 'CMAKE_TOOLCHAIN_FILE=\K[^ ]*')
+        TOOLCHAIN_PATH=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
         echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
-        
-        # Debug output
         echo "Extracted toolchain path: $TOOLCHAIN_PATH"
 
     - name: Configure with CMake
       run: |
         echo "current pwd: $(pwd)"
-        ls -lh
         cd mtls_server
         cmake -S ./ -B ./build \
           -DCMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_CMAKE_TOOLCHAIN }} \
@@ -52,12 +45,12 @@ jobs:
           -DCMAKE_SYSTEM_PROCESSOR=arm64 \
           -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
           -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+          -Dwolfssl_DIR=/home/vm/EA/vcpkg/installed/arm64-linux/share/wolfssl
 
     - name: Build
       run: |
         cd mtls_server
         cmake --build ./build --config Release
-        ls -lh ./build
 
     - name: Package and export
       run: |
