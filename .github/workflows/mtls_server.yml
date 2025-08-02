@@ -31,8 +31,10 @@ jobs:
         ./bootstrap-vcpkg.sh
         ./vcpkg integrate install
         ./vcpkg install uthash kcp wolfssl --triplet arm64-linux
-        TOOLCHAIN_PATH=$(pwd)/vcpkg/scripts/buildsystems/vcpkg.cmake
+        VCPKG_PATH=$(pwd)
+        TOOLCHAIN_PATH=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake
         echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
+        echo "VCPKG_PATH=$VCPKG_PATH" >> $GITHUB_ENV
         echo "Extracted toolchain path: $TOOLCHAIN_PATH"
 
     - name: Configure with CMake
@@ -45,7 +47,7 @@ jobs:
           -DCMAKE_SYSTEM_PROCESSOR=arm64 \
           -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
           -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
-          -Dwolfssl_DIR=/home/vm/EA/vcpkg/installed/arm64-linux/share/wolfssl
+          -Dwolfssl_DIR=${{ env.VCPKG_PATH }}/installed/arm64-linux/share/wolfssl
 
     - name: Build
       run: |
