@@ -35,7 +35,7 @@ jobs:
         TOOLCHAIN_PATH=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake
         echo "VCPKG_CMAKE_TOOLCHAIN=$TOOLCHAIN_PATH" >> $GITHUB_ENV
         echo "VCPKG_PATH=$VCPKG_PATH" >> $GITHUB_ENV
-        echo "Extracted toolchain path: $TOOLCHAIN_PATH"
+        find $VCPKG_PATH/installed/arm64-linux -name "*wolfssl*.cmake"
 
     - name: Configure with CMake
       run: |
