@@ -98,7 +98,7 @@ Future<bool> update_online_status({
       url,
       headers: headers,
       body: body,
-    );
+    ).timeout(const Duration(seconds: 3));
 
     final responseData = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode == 200) {
@@ -110,6 +110,7 @@ Future<bool> update_online_status({
       throw Exception('Failed to update online status: ${response.statusCode}');
     }
   } catch (e) {
+    print('update_online_status error: $e');
     throw Exception('Network error: $e');
   }
 }

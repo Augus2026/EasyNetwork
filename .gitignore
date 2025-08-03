@@ -3,3 +3,4 @@ EasyNetwork/libEasyNetwork/build/*
 kcp_server/build/*
 mtls_server/build/*
 api_server/target/*
+EasyNetwork/flutter/devtools_options.yaml

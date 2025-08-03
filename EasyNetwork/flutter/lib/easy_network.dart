@@ -470,6 +470,25 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  Widget _buildOnlineStatusSection2() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildOnlineStatusSection(),
+        IconButton(
+          constraints: BoxConstraints(
+            minWidth: 15,
+            minHeight: 15,
+          ),
+          icon: Icon(Icons.refresh, size: 20, color: Colors.green),
+          onPressed: () {
+            updateOnlineStatus();
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -498,7 +517,7 @@ class _MyHomePageState extends State<MyHomePage> {
             const Divider(),
             _buildMemberSection(),
             const Divider(),
-            _buildOnlineStatusSection()
+            _buildOnlineStatusSection2()
           ],
         ),
       ),
