@@ -6,6 +6,8 @@ import 'easy_network_http.dart';
 import 'easy_network_ffi.dart';
 import 'package:uuid/uuid.dart';
 import 'pages/settings_page.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Timer startPeriodicTask({
   required Function task,
@@ -43,9 +45,16 @@ class _MyHomePageState extends State<MyHomePage> {
   DateTime? _lastMemberUpdateTime;
   int _secondsSinceLastUpdate = 0;
 
+  EasyNetworkFFI ffi = EasyNetworkFFI();
+
   @override
   void initState() {
     super.initState();
+
+    // 注册依赖
+    Get.put(this);
+    Get.put(ffi);
+
     _deviceUuid = _buildDeviceUuid();
     _textController.text = 'default';
     _membersStream = _createMembersStream();
@@ -77,6 +86,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _memberUpdateTimer?.cancel();
     _routeUpdateTimer?.cancel();
     super.dispose();
+  }
+
+  void resetNetwork(String replyAddress, int replyPort) {
+    if(_isJoined) {
+      ffi.setReplyServer(replyAddress, replyPort);
+      ffi.resetNetwork(_textController.text);
+    }
   }
 
   String _buildDeviceId() {
@@ -190,10 +206,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         );
                         print('Joined network successfully: $result');
 
-                        final ffi = EasyNetworkFFI();
                         // 设置服务器
                         final servers = result['server'];
-
                         var replyAddress = servers['reply_address'].toString();
                         try {
                           final addresses = await InternetAddress.lookup(replyAddress);
@@ -202,12 +216,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         } catch (e) {
                           print('Failed to resolve address: $e');
                         }
-
                         final replyPort = servers['reply_port'] is int
                             ? servers['reply_port'] as int
                             : int.parse(servers['reply_port'].toString());
-
-                        await ffi.setServer(replyAddress, replyPort);
+                        await ffi.setReplyServer(replyAddress, replyPort);
 
                         // 启动网络
                         final interface = result['interface'];
@@ -242,7 +254,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                 networkName: _textController.text);
                             print('routes: $routes');
 
-                            final ffi = EasyNetworkFFI();
                             await ffi.cleanRoute();
                             print('Cleaned routes successfully');
 
@@ -285,8 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           deviceId: _buildDeviceId(),
                           networkName: _textController.text,
                         );
-                        final ffi = EasyNetworkFFI();
-                        await ffi.leaveNetwork();
+                        await ffi.leaveNetwork(_textController.text);
 
                         // 停止定时器
                         _memberUpdateTimer?.cancel();
@@ -498,11 +508,19 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
-            onPressed: () {
+            onPressed: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
+
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              bool forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;
+              if(forceUseReplyServer) {
+                String replyAddress = prefs.getString('replyServerAddress') ?? '';
+                int replyPort = prefs.getInt('replyServerPort') ?? 0;
+                resetNetwork(replyAddress, replyPort);
+              }
             },
           ),
         ],

@@ -28,21 +28,21 @@ class EasyNetworkFFI {
     return _instance ??= EasyNetworkFFI._internal();
   }
 
-  Future<void> setServer(String replyAddress, int replyPort) async {
+  Future<void> setReplyServer(String replyAddress, int replyPort) async {
     String addr = await get_reply_server_address();
     if(addr != "") {
       List<String> list = addr.split(":");
       replyAddress = list[0];
       replyPort = int.parse(list[1]);
-      print('[EasyNetwork] Force setting server: $replyAddress:$replyPort');
+      print('[EasyNetwork] Force setting reply server: $replyAddress:$replyPort');
     } else {
-      print('[EasyNetwork] Setting server: $replyAddress:$replyPort');
+      print('[EasyNetwork] Setting reply server: $replyAddress:$replyPort');
     }
     
-    final addressPtr = replyAddress.toNativeUtf8();
+    final replyAddressPtr = replyAddress.toNativeUtf8();
     try {
-      _bindings.set_server(
-        addressPtr as Pointer<Char>,
+      _bindings.set_reply_server(
+        replyAddressPtr as Pointer<Char>,
         replyPort,
       );
       print('[EasyNetwork] Server set successfully');
@@ -50,7 +50,7 @@ class EasyNetworkFFI {
       print('[EasyNetwork] Error setting server: $e');
       rethrow;
     } finally {
-      malloc.free(addressPtr);
+      malloc.free(replyAddressPtr);
     }
   }
 
@@ -101,13 +101,24 @@ class EasyNetworkFFI {
     }
   }
 
-  Future<void> leaveNetwork() async {
-    print('[EasyNetwork] Leaving network');
+  Future<void> leaveNetwork(String ifname) async {
+    print('[EasyNetwork] Leaving network $ifname');
     try {
-      _bindings.leave_network();
+      _bindings.leave_network(ifname.toNativeUtf8() as Pointer<Char>);
       print('[EasyNetwork] Network left successfully');
     } catch (e) {
       print('[EasyNetwork] Error leaving network: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> resetNetwork(String ifname) async {
+    print('[EasyNetwork] Resetting network $ifname');
+    try {
+      _bindings.reset_network(ifname.toNativeUtf8() as Pointer<Char>);
+      print('[EasyNetwork] Network reset successfully');
+    } catch (e) {
+      print('[EasyNetwork] Error resetting network: $e');
       rethrow;
     }
   }

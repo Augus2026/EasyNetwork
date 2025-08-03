@@ -12,9 +12,10 @@ comments:
 
 functions:
   include:
-    - 'set_server'
+    - 'set_reply_server'
     - 'join_network'
     - 'leave_network'
+    - 'reset_network'
     - 'add_route'
     - 'clean_route'
   exclude:

@@ -13,9 +13,9 @@ extern "C" {
 
 #include <stdint.h>
 
-EXPORT void set_server(
+EXPORT void set_reply_server(
     const char* reply_address,
-    int reply_port); 
+    int reply_port);
 
 EXPORT void join_network(
     const char* ifname,
@@ -27,7 +27,11 @@ EXPORT void join_network(
     const char* nameServer,
     const char* searchList);
 
-EXPORT void leave_network();
+EXPORT void leave_network(
+    const char* ifname);
+
+EXPORT void reset_network(
+    const char* ifname);
 
 EXPORT void add_route(
     const char* destination,

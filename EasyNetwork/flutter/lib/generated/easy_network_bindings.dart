@@ -27,21 +27,22 @@ class EasyNetworkBindings {
 
   set __security_cookie(int value) => ___security_cookie.value = value;
 
-  void set_server(
+  void set_reply_server(
     ffi.Pointer<ffi.Char> reply_address,
     int reply_port,
   ) {
-    return _set_server(
+    return _set_reply_server(
       reply_address,
       reply_port,
     );
   }
 
-  late final _set_serverPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Int)>>('set_server');
-  late final _set_server =
-      _set_serverPtr.asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
+  late final _set_reply_serverPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>, ffi.Int)>>(
+      'set_reply_server');
+  late final _set_reply_server = _set_reply_serverPtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>, int)>();
 
   void join_network(
     ffi.Pointer<ffi.Char> ifname,
@@ -87,13 +88,33 @@ class EasyNetworkBindings {
           ffi.Pointer<ffi.Char>,
           ffi.Pointer<ffi.Char>)>();
 
-  void leave_network() {
-    return _leave_network();
+  void leave_network(
+    ffi.Pointer<ffi.Char> ifname,
+  ) {
+    return _leave_network(
+      ifname,
+    );
   }
 
   late final _leave_networkPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>('leave_network');
-  late final _leave_network = _leave_networkPtr.asFunction<void Function()>();
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'leave_network');
+  late final _leave_network =
+      _leave_networkPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void reset_network(
+    ffi.Pointer<ffi.Char> ifname,
+  ) {
+    return _reset_network(
+      ifname,
+    );
+  }
+
+  late final _reset_networkPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+          'reset_network');
+  late final _reset_network =
+      _reset_networkPtr.asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
   void add_route(
     ffi.Pointer<ffi.Char> destination,

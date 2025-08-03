@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    set_server(server_ip, server_port);
+    set_reply_server(server_ip, server_port);
     join_network("eth0", "EasyNetwork", "10.10.10.11", "255.255.255.0", "1400", "example.com", "8.8.8.8", "8.8.4.4");
     Sleep(3000);
     add_route("10.10.10.0", "255.255.255.0", "10.10.10.11", "100");

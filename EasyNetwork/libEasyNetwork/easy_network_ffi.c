@@ -10,6 +10,7 @@ typedef struct server_info_ {
     int reply_port;
 } server_info_t;
 
+peer_info_t* peer = NULL;
 server_info_t server_info;
 
 DWORD WINAPI ThreadProc(LPVOID lpParam) {
@@ -18,7 +19,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParam) {
     return 0;
 }
 
-void set_server(
+void set_reply_server(
     const char* reply_address,
     int reply_port) {
     printf("Setting server:\n");
@@ -48,7 +49,7 @@ void join_network(
     printf("Name Server: %s\n", nameServer);
     printf("Search List: %s\n", searchList);
     
-    peer_info_t* peer = (peer_info_t*)malloc(sizeof(peer_info_t));
+    peer = (peer_info_t*)malloc(sizeof(peer_info_t));
     memset(peer, 0, sizeof(peer_info_t));
 
     peer->server_ip = _strdup(server_info.reply_address);
@@ -80,9 +81,32 @@ void join_network(
     return;
 }
 
-void leave_network() {
+void leave_network(
+    const char* ifname) {
     printf("Leaving network on interface\n");
     destroy_peer();
+}
+
+void reset_network(
+    const char* ifname
+    ) {
+    leave_network(ifname);
+
+    // 创建线程执行build_peer
+    HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadProc, peer, 0, NULL);
+    if (thread == NULL) {
+        free(peer->server_ip);
+        free(peer->name);
+        free(peer->desc);
+        free(peer->desc);
+        free(peer->tunnel_ip);
+        free(peer->domain);
+        free(peer->name_server);
+        free(peer->search_list);
+        free(peer);
+        return;
+    }
+    CloseHandle(thread);
 }
 
 void add_route(

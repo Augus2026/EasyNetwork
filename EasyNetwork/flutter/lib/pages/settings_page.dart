@@ -29,12 +29,12 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _saveLocalSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('forceUseApiServer', _forceUseApiServer);
     prefs.setString('apiServerAddress', _apiIpController.text);
     prefs.setInt('apiServerPort', int.parse(_apiPortController.text));
+    prefs.setBool('forceUseReplyServer', _forceUseReplyServer);
     prefs.setString('replyServerAddress', _replyIpController.text);
     prefs.setInt('replyServerPort', int.parse(_replyPortController.text));
-    prefs.setBool('forceUseApiServer', _forceUseApiServer);
-    prefs.setBool('forceUseReplyServer', _forceUseReplyServer);
   }
 
   @override
