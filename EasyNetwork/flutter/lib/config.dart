@@ -16,8 +16,8 @@ Future<String> get_api_server_address() async {
 }
 
 Future<String> get_reply_server_address() async {
-  String server_address = "";
-  String server_port = "";
+  String server_address = ""; // 192.168.1.1
+  String server_port = ""; // 1234
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;

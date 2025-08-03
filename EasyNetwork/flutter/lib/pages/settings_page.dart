@@ -18,12 +18,13 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> _loadLocalSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      _forceUseApiServer = prefs.getBool('forceUseApiServer') ?? false;
       _apiIpController.text = prefs.getString('apiServerAddress') ?? '';
       _apiPortController.text = prefs.getInt('apiServerPort')?.toString() ?? '';
+
+      _forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;
       _replyIpController.text = prefs.getString('replyServerAddress') ?? '';
       _replyPortController.text = prefs.getInt('replyServerPort')?.toString() ?? '';
-      _forceUseApiServer = prefs.getBool('forceUseApiServer') ?? false;
-      _forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;
     });
   }
 
@@ -32,6 +33,7 @@ class _SettingsPageState extends State<SettingsPage> {
     prefs.setBool('forceUseApiServer', _forceUseApiServer);
     prefs.setString('apiServerAddress', _apiIpController.text);
     prefs.setInt('apiServerPort', int.parse(_apiPortController.text));
+    
     prefs.setBool('forceUseReplyServer', _forceUseReplyServer);
     prefs.setString('replyServerAddress', _replyIpController.text);
     prefs.setInt('replyServerPort', int.parse(_replyPortController.text));
