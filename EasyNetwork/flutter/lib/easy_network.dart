@@ -88,10 +88,20 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void resetNetwork(String replyAddress, int replyPort) {
+  Future<void> resetNetwork() async {
     if(_isJoined) {
-      ffi.setReplyServer(replyAddress, replyPort);
-      ffi.resetNetwork(_textController.text);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;
+      if(forceUseReplyServer) {
+        String replyAddress = prefs.getString('replyServerAddress') ?? '';
+        int replyPort = prefs.getInt('replyServerPort') ?? 0;
+        String ifname = _textController.text;
+
+        ffi.setReplyServer(replyAddress, replyPort);
+        ffi.resetNetwork(ifname);
+      }
+    } else {
+      print("Not joined any network");
     }
   }
 
@@ -513,14 +523,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 context,
                 MaterialPageRoute(builder: (context) => SettingsPage()),
               );
-
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              bool forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;
-              if(forceUseReplyServer) {
-                String replyAddress = prefs.getString('replyServerAddress') ?? '';
-                int replyPort = prefs.getInt('replyServerPort') ?? 0;
-                resetNetwork(replyAddress, replyPort);
-              }
+              resetNetwork();
             },
           ),
         ],
