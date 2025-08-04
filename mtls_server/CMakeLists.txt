@@ -7,10 +7,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_package(wolfssl REQUIRED)
 
-# 添加静态链接选项
-set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-#
 if(WIN32)
     set(UTHASH_INCLUDE_DIR "${VCPKG_ROOT}/installed/x64-windows/include")
     include_directories(mtls_server ${UTHASH_INCLUDE_DIR})
