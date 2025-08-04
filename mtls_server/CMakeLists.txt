@@ -7,6 +7,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 find_package(wolfssl REQUIRED)
 
+# 添加静态链接选项
+set(BUILD_SHARED_LIBS OFF)
+
 #
 if(WIN32)
     set(UTHASH_INCLUDE_DIR "${VCPKG_ROOT}/installed/x64-windows/include")
