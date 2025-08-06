@@ -12,5 +12,3 @@ validator = { version = "0.20.0", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 lazy_static = "1.4"
 
-[package.metadata]
-config_path = "./.cargo/.config.toml"
