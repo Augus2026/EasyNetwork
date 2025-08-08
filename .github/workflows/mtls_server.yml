@@ -9,7 +9,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  build-mtls-server:
+  build-mtls-server-aarch64v8:
     runs-on: ubuntu-latest
 
     outputs:
