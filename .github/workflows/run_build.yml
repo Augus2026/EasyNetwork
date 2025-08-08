@@ -267,7 +267,7 @@ jobs:
         path: ${{ env.PACKAGE_PATH }}
   
   release:
-    needs: [build-mtls-server, build-api-server, build-flutter, build-api_server-aarch64v8, build-mtls-server-aarch64v8]
+    needs: [build-mtls-server, build-api-server, build-flutter, build-api-server-aarch64v8, build-mtls-server-aarch64v8]
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     
@@ -289,6 +289,18 @@ jobs:
         with:
           name: flutter-client-release
           path: release-artifacts/flutter-client
+
+      - name: Download api server aarch64v8 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-server-release-aarch64v8
+          path: release-artifacts/api-server-aarch64v8
+
+      - name: Download mtls server aarch64v8 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mtls-server-release-aarch64v8
+          path: release-artifacts/mtls-server-aarch64v8
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -297,11 +309,13 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             EasyNetwork 版本发布
-            - 包含: mtls Server, api Server 和 flutter windows client
+            - 包含: mtls server, api server, flutter windows client, api server aarch64v8, mtls server aarch64v8
           files: |
             release-artifacts/mtls-server/*
             release-artifacts/api-server/*
             release-artifacts/flutter-client/*
+            release-artifacts/api-server-aarch64v8/*
+            release-artifacts/mtls-server-aarch64v8/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
