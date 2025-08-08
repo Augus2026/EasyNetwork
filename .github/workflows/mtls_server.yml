@@ -68,5 +68,5 @@ jobs:
     - name: Upload release package
       uses: actions/upload-artifact@v4
       with:
-        name: mtls-server-release
+        name: mtls-server-release-aarch64v8
         path: ${{ env.PACKAGE_PATH }}

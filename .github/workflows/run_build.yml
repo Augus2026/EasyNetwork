@@ -190,9 +190,8 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
-            EasyNetwork 全组件版本发布
-            - 包含: MTLS Server, API Server 和 Flutter Client
-            - 构建时间: ${{ steps.get-current-date.outputs.date }}
+            EasyNetwork 版本发布
+            - 包含: mtls Server, api Server 和 flutter windows client
           files: |
             release-artifacts/mtls-server/*
             release-artifacts/api-server/*

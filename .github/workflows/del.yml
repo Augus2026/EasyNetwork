@@ -1,4 +1,4 @@
-name: del
+name: delete-workflows
 
 on:
   workflow_dispatch:
