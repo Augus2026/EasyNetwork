@@ -108,10 +108,10 @@ install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   COMPONENT Runtime)
 
 # copy dll from libEasyNetwork
-foreach(CONFIG_TYPE Debug Release)
-# foreach(CONFIG_TYPE Release)
-    file(COPY 
-        ../../libEasyNetwork/build/${CONFIG_TYPE}/
-        DESTINATION ${CMAKE_BINARY_DIR}/runner/${CONFIG_TYPE}
-    )
+# foreach(CONFIG_TYPE Debug Release)
+foreach(CONFIG_TYPE Release)
+  file(COPY 
+    ../../libEasyNetwork/build/${CONFIG_TYPE}/
+    DESTINATION ${CMAKE_BINARY_DIR}/runner/${CONFIG_TYPE}
+  )
 endforeach()
