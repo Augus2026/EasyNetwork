@@ -194,8 +194,8 @@ jobs:
           cd api_server
           mkdir -p release
           cp target/aarch64-unknown-linux-gnu/release/api_server release/ 2>/dev/null || :
-          tar czvf api-server-release.tar.gz -C release .
-          echo "PACKAGE_PATH=$(pwd)/api-server-release.tar.gz" >> $GITHUB_ENV
+          tar czvf api-server-release-aarch64v8.tar.gz -C release .
+          echo "PACKAGE_PATH=$(pwd)/api-server-release-aarch64v8.tar.gz" >> $GITHUB_ENV
 
       - name: Upload release package
         uses: actions/upload-artifact@v4
@@ -257,8 +257,8 @@ jobs:
         cp build/*.so release/ 2>/dev/null || :
         cp build/*.pem release/ 2>/dev/null || :
         cp build/*.der release/ 2>/dev/null || :
-        tar czvf mtls-server-release.tar.gz -C release .
-        echo "PACKAGE_PATH=$(pwd)/mtls-server-release.tar.gz" >> $GITHUB_ENV
+        tar czvf mtls-server-release-aarch64v8.tar.gz -C release .
+        echo "PACKAGE_PATH=$(pwd)/mtls-server-release-aarch64v8.tar.gz" >> $GITHUB_ENV
 
     - name: Upload release package
       uses: actions/upload-artifact@v4
