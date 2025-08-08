@@ -267,7 +267,7 @@ jobs:
         path: ${{ env.PACKAGE_PATH }}
   
   release:
-    needs: [build-mtls-server, build-api-server, build-flutter, build-api_server-aarch64v8, build-mtls-server-aarch64v8]
+    needs: [build-mtls-server, build-api-server, build-flutter, build-api-server-aarch64v8, build-mtls-server-aarch64v8]
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     
