@@ -1,22 +1,47 @@
 @echo off
+setlocal
 
-pushd .\EasyNetwork\libEasyNetwork
-cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/Users/shiguoliang/temp/vcpkg-export-20250726-155106/scripts/buildsystems/vcpkg.cmake
-cmake --build ./build --config Release
-popd
+:: Check if project parameter is provided
+if "%~1"=="" (
+    echo Please specify the project to build:
+    echo   - flutter: Build Flutter application
+    echo   - lib: Build EasyNetwork library
+    echo   - api_server: Build API server
+    echo   - mtls_server: Build mTLS server
+    goto :eof
+)
 
-pushd .\EasyNetwork\flutter
-@REM flutter pub run ffigen --config ffigen.yaml
-@REM flutter pub get
-flutter build windows --release
-popd
+:: Select build project based on parameter
+if /i "%~1"=="flutter" (
+    echo Building Flutter application...
 
-@REM pushd .\api_server
-@REM cargo clean
-@REM cargo build --release
-@REM popd
+    pushd .\EasyNetwork\libEasyNetwork
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/Users/shiguoliang/temp/vcpkg-export-20250726-155106/scripts/buildsystems/vcpkg.cmake
+    cmake --build ./build --config Release
+    popd
+) else if /i "%~1"=="lib" (
+    echo Building EasyNetwork library...
 
-@REM pushd .\mtls_server
-@REM cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/Users/shiguoliang/temp/vcpkg-export-20250726-155106/scripts/buildsystems/vcpkg.cmake
-@REM cmake --build ./build --config Release
-@REM popd
+    pushd .\EasyNetwork\flutter
+    flutter pub run ffigen --config ffigen.yaml
+    flutter pub get
+    flutter build windows --release
+    popd
+) else if /i "%~1"=="api_server" (
+    echo Building API server...
+
+    pushd .\api_server
+    cargo clean
+    cargo build --release
+    popd
+) else if /i "%~1"=="mtls_server" (
+    echo Building mTLS server...
+
+    pushd .\mtls_server
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/Users/shiguoliang/temp/vcpkg-export-20250726-155106/scripts/buildsystems/vcpkg.cmake
+    cmake --build ./build --config Release
+    popd
+) else (
+    echo Invalid project parameter: %~1
+    echo Available options: flutter, lib, api_server, mtls_server
+)
