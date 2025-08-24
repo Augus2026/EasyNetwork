@@ -6,7 +6,6 @@ use lazy_static::lazy_static;
 
 // basic info
 #[derive(Debug, Clone, Deserialize, Serialize)]
-
 pub struct BasicInfo {
     pub id: String,
     pub name: String,

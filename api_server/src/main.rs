@@ -5,7 +5,7 @@ mod member;
 mod network;
 
 const SERVER_IP: &str = "0.0.0.0";
-const SERVER_PORT: u16 = 1001;
+const SERVER_PORT: u16 = 8000;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

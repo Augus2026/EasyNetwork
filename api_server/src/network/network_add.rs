@@ -21,6 +21,12 @@ pub struct AddNetworkRequest {
     pub is_private: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SuccessResponse {
+    pub status: String,
+    pub data: NetworkConfig,
+}
+
 #[post("/api/v1/networks")]
 pub async fn network_add(
     body: web::Json<AddNetworkRequest>
@@ -68,7 +74,12 @@ pub async fn network_add(
             server_port: "8080".to_string(),
         },
     };
-
-    network_config.push(new_network);
-    HttpResponse::Ok().json("Network added successfully")
+    network_config.push(new_network.clone());
+    
+    HttpResponse::Ok().json(
+        SuccessResponse {
+            status: "success".to_string(),
+            data: new_network.clone(),
+        }
+    )
 }
