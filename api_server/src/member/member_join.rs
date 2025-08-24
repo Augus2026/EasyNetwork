@@ -1,8 +1,7 @@
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU8, Ordering};
-use uuid::Uuid;
 
 use crate::member::{
     MemberInfo,
@@ -24,6 +23,7 @@ static IP_COUNTER: AtomicU8 = AtomicU8::new(0);
 #[post("/api/v1/networks/{network_id}/join")]
 async fn member_join(
     path: web::Path<String>,
+    req: HttpRequest,
 ) -> impl Responder {
     let network_id = path.into_inner();
 
@@ -78,7 +78,7 @@ async fn member_join(
                 managed_ips: ip_address.clone(),
                 last_seen: Utc::now().to_string(),
                 version: "1.0.0".to_string(),
-                physical_ip: "10.10.10.1".to_string(),
+                physical_ip: req.connection_info().peer_addr().unwrap_or("10.10.10.1").to_string(),
                 network: n.clone(),
             };
 
