@@ -9,7 +9,6 @@ use crate::member::{
 #[derive(Debug, Deserialize, Serialize)]
 struct SuccessResponse {
     status: String,
-    count: u32,
     data: Vec<MemberInfo>,
 }
 
@@ -26,13 +25,13 @@ pub async fn get_network_members(
         }
     };
 
+    println!("get network members: {:?}", config);
     let members = config.get(&network_id).cloned();
     match members {
-        Some(m) => {
+        Some(member) => {
             return HttpResponse::Ok().json(SuccessResponse {
                 status: "success".to_string(),
-                count: m.len() as u32,
-                data: m,
+                data: member,
             });
         }
         None => {

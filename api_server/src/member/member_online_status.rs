@@ -30,7 +30,7 @@ async fn update_member_online_status(
                 return HttpResponse::NotFound().body("Member not found");
             }
             let member = member.unwrap();
-            member.last_online = Utc::now().to_string();
+            member.last_seen = Utc::now().to_string();
             HttpResponse::Ok().json(SuccessResponse {
                 status: "success".to_string(),
             })

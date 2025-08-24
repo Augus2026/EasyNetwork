@@ -2,10 +2,9 @@ use actix_web::{post, web, HttpResponse, Responder};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU8, Ordering};
+use uuid::Uuid;
 
 use crate::member::{
-    InterfaceInfo,
-    ServerInfo,
     MemberInfo,
     MEMBER_CONFIG,
 };
@@ -19,6 +18,8 @@ struct SuccessResponse {
     status: String,
     data: MemberInfo,
 }
+
+static IP_COUNTER: AtomicU8 = AtomicU8::new(0);
 
 #[post("/api/v1/networks/{network_id}/join")]
 async fn member_join(
@@ -38,39 +39,47 @@ async fn member_join(
     let network = network_config.iter().find(|n| n.basic_info.id == network_id);
     match network {
         Some(n) => {
-            static IP_COUNTER: AtomicU8 = AtomicU8::new(100);
-            let ip_last_octet = IP_COUNTER.fetch_add(1, Ordering::SeqCst);
-            let ip_last_octet = if ip_last_octet > 200 { 100 } else { ip_last_octet };
-            let ip_address = format!("10.10.10.{}", ip_last_octet);
+            // 生成id
+            let member_id = uuid::Uuid::new_v4().to_string();
+            // 生成mac地址
+            let mac_address = uuid::Uuid::new_v4().to_string();
+            // 生成ip地址
+            let alloc_type  = n.dhcp_info.alloc_type.clone();
+            let ip_address: String;
+            match alloc_type.as_str() {
+                "easy" => {
+                    let range_start = 0;
+                    let range_end = 255;
+                    let ip_prefix = n.dhcp_info.selected_range.clone();
+                    let ip_last_octet = range_start + (IP_COUNTER.fetch_add(1, Ordering::SeqCst) % (range_end - range_start + 1));
+                    ip_address = format!("{}.{}", ip_prefix, ip_last_octet);
+                }
+                "advanced" => {
+                    let range_start = n.dhcp_info.range_start.split('.').last().unwrap().parse::<u8>().unwrap();
+                    let range_end = n.dhcp_info.range_end.split('.').last().unwrap().parse::<u8>().unwrap();
+                    let ip_prefix = &n.dhcp_info.range_start[..n.dhcp_info.range_start.rfind('.').unwrap()];
+                    let ip_last_octet = range_start + (IP_COUNTER.fetch_add(1, Ordering::SeqCst) % (range_end - range_start + 1));
+                    ip_address = format!("{}.{}", ip_prefix, ip_last_octet);
+                }
+                _ => {
+                    return HttpResponse::InternalServerError().body("Invalid alloc type");
+                }
+            }
+            // 生成认证结果
+            let auth = if n.basic_info.is_private { "false" } else { "true" };
 
             // 分配网络成员信息
             let member = MemberInfo {
-                id: "1".to_string(),
-                name: "member1".to_string(),
-                desc: "member1".to_string(),
-                auth: "1".to_string(),
-                managedIPs: "10.10.10.1".to_string(),
-                lastSeen: Utc::now().to_string(),
+                id: member_id.clone(),
+                name: "".to_string(),
+                desc: "".to_string(),
+                auth: auth.to_string(),
+                address: mac_address.clone(),
+                managed_ips: ip_address.clone(),
+                last_seen: Utc::now().to_string(),
                 version: "1.0.0".to_string(),
-                physicalIP: "10.10.10.1".to_string(),
-                address: "10.10.10.1".to_string(),
-                last_online: Utc::now().to_string(),
-                join_time: Utc::now().to_string(),
-                online: true,
-                interface: InterfaceInfo {
-                    name: n.basic_info.name.clone(),
-                    desc: format!("{} network", n.basic_info.name),
-                    ipv4_address: ip_address,
-                    subnet_mask: "24".to_string(),
-                    mtu: 1400,
-                    domain: "sub1".to_string(),
-                    name_server: "114.114.114.114,8.8.8.8".to_string(),
-                    search_list: "EasyNetwork.local".to_string(),
-                },
-                server: ServerInfo {
-                    reply_address: "cn-easy-network.com".to_string(),
-                    reply_port: "1234".to_string(),
-                },
+                physical_ip: "10.10.10.1".to_string(),
+                network: n.clone(),
             };
 
             // 加入网络成员列表
