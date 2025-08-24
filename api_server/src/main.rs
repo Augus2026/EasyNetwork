@@ -1,25 +1,8 @@
 use actix_web::{App, HttpServer};
 
-mod config;
-mod sysinfo;
-mod online_status;
-mod network_members;
-mod network_join;
-mod network_leave;
-mod route_list;
-mod member_online_status;
-mod endpoint_list;
-use endpoint_list::get_all_endpoints_handler;
-mod network_member_list;
-use network_member_list::get_all_network_members_handler;
-
-use sysinfo::report_sysinfo;
-use network_members::get_network_members;
-use network_join::join_network;
-use network_leave::leave_network;
-use route_list::get_route_list;
-use member_online_status::update_member_online_status;
-use online_status::update_online_status;
+mod endpoint;
+mod member;
+mod network;
 
 const SERVER_IP: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 1001;
@@ -32,15 +15,21 @@ async fn main() -> std::io::Result<()> {
     
     HttpServer::new(|| {
         App::new()
-            .service(report_sysinfo)
-            .service(get_network_members)
-            .service(join_network)
-            .service(leave_network)
-            .service(get_route_list)
-            .service(update_member_online_status)
-            .service(update_online_status)
-            .service(get_all_endpoints_handler)
-            .service(get_all_network_members_handler)
+            // endpoint
+            .service(endpoint::endpoint_sysinfo::report_sysinfo)
+            .service(endpoint::endpoint_list::get_all_endpoints)
+            .service(endpoint::endpoint_online_status::update_online_status)
+            //member
+            .service(member::member_list::get_network_members)
+            .service(member::member_online_status::update_member_online_status)
+            .service(member::member_join::member_join)
+            .service(member::member_leave::member_leave)
+            // network
+            .service(network::network_add::network_add)
+            .service(network::network_del::network_del)
+            .service(network::network_list::get_networks)
+            .service(network::network_update::network_update)
+            .service(network::network_route_list::network_route_list)
     })
     .bind(format!("{}:{}", server_ip, port))?
     .run()
