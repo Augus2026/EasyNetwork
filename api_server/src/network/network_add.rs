@@ -73,6 +73,7 @@ pub async fn network_add(
             server_address: "192.168.1.1".to_string(),
             server_port: "8080".to_string(),
         },
+        member_info: vec![],
     };
     network_config.push(new_network.clone());
     

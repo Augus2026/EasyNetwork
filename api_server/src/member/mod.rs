@@ -1,12 +1,10 @@
 // src/member/mod.rs
 
-pub mod member_config;
 pub mod member_list;
 pub mod member_online_status;
 pub mod member_join;
 pub mod member_leave;
 
-pub use member_config::*;
 pub use member_list::*;
 pub use member_online_status::*;
 pub use member_join::*;

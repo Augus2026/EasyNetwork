@@ -1,10 +1,10 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
-use crate::member::{
-    MEMBER_CONFIG,
+use crate::network::{
+    MemberInfo,
+    NETWORK_CONFIG,
 };
-
 #[derive(Debug, Deserialize, Serialize)]
 struct SuccessResponse {
     status: String,
@@ -16,19 +16,18 @@ async fn member_leave(
 ) -> impl Responder {
     let (network_id, member_id) = path.into_inner();
 
-    let mut config = match MEMBER_CONFIG.lock() {
+    let mut config = match NETWORK_CONFIG.lock() {
         Ok(guard) => guard,
         Err(_) => {
             return HttpResponse::InternalServerError().body("Failed to acquire member config lock");
         }
     };
 
-    // 查找并移除成员
-    let members = config.get_mut(&network_id);
-    match members {
-        Some(m) => {
-            if let Some(index) = m.iter().position(|m| m.id == member_id) {
-                m.remove(index);
+    let network = config.iter_mut().find(|v| v.basic_info.id == network_id);
+    match network {
+        Some(network) => {
+            if let Some(index) = network.member_info.iter().position(|m| m.id == member_id) {
+                network.member_info.remove(index);
                 HttpResponse::Ok().json(SuccessResponse {
                     status: "success".to_string(),
                 })
@@ -37,7 +36,7 @@ async fn member_leave(
             }
         }
         None => {
-            return HttpResponse::NotFound().body("No member found for this id");
+            return HttpResponse::InternalServerError().body("Network ID not found");
         }
     }
 }

@@ -1,9 +1,9 @@
 use actix_web::{get, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
-use crate::member::{
+use crate::network::{
     MemberInfo,
-    MEMBER_CONFIG,
+    NETWORK_CONFIG,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -18,24 +18,22 @@ pub async fn get_network_members(
 ) -> impl Responder {
     let network_id = path.into_inner();
 
-    let config = match MEMBER_CONFIG.lock() {
+    let config = match NETWORK_CONFIG.lock() {
         Ok(guard) => guard,
         Err(_) => {
             return HttpResponse::InternalServerError().body("Failed to acquire member config lock");
         }
     };
 
-    println!("get network members: {:?}", config);
-    let members = config.get(&network_id).cloned();
-    match members {
-        Some(member) => {
-            return HttpResponse::Ok().json(SuccessResponse {
-                status: "success".to_string(),
-                data: member,
-            });
-        }
-        None => {
-            return HttpResponse::NotFound().body("No member found for this id");
-        }
+    let network = config.iter().find(|v| v.basic_info.id == network_id);
+    if network.is_none() {
+        return HttpResponse::InternalServerError().body("Network ID not found");
     }
+    let members = network.unwrap().member_info.clone();
+
+    println!("get network members: {:?}", config);
+    return HttpResponse::Ok().json(SuccessResponse {
+        status: "success".to_string(),
+        data: members,
+    });
 }

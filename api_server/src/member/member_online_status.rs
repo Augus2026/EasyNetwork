@@ -2,8 +2,9 @@ use actix_web::{post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use chrono::Utc;
 
-use crate::member::{
-    MEMBER_CONFIG,
+use crate::network::{
+    MemberInfo,
+    NETWORK_CONFIG,
 };
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -17,26 +18,28 @@ async fn update_member_online_status(
 ) -> impl Responder {
     let (network_id, member_id) = path.into_inner();
 
-    let mut config = match MEMBER_CONFIG.lock() {
+    let mut config = match NETWORK_CONFIG.lock() {
         Ok(guard) => guard,
-        Err(_) => return HttpResponse::InternalServerError().body("Failed to acquire member config lock"),
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Failed to acquire member config lock");
+        }
     };
 
-    let members = config.get_mut(&network_id);
-    match members {
-        Some(m) => {
-            let member = m.iter_mut().find(|m| m.id == member_id);
+    let network = config.iter_mut().find(|v| v.basic_info.id == network_id);
+    match network {
+        Some(network) => {
+            let member = network.member_info.iter_mut().find(|m| m.id == member_id);
             if member.is_none() {
                 return HttpResponse::NotFound().body("Member not found");
             }
             let member = member.unwrap();
             member.last_seen = Utc::now().to_string();
-            HttpResponse::Ok().json(SuccessResponse {
+            return HttpResponse::Ok().json(SuccessResponse {
                 status: "success".to_string(),
-            })
+            });
         }
         None => {
-            return HttpResponse::NotFound().body("No member found for this id");
+            return HttpResponse::InternalServerError().body("Network ID not found");
         }
     }
 }

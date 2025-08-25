@@ -47,6 +47,21 @@ pub struct ServerInfo {
     pub server_port: String,
 }
 
+// member info
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct MemberInfo {
+    // 基本信息
+    pub id: String,
+    pub name: String,
+    pub desc: String,
+    pub auth: String,
+    pub address: String,
+    pub managed_ips: String,
+    pub last_seen: String,
+    pub version: String,
+    pub physical_ip: String,
+}
+
 // network
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct NetworkConfig {
@@ -60,6 +75,8 @@ pub struct NetworkConfig {
     pub dns_info: DnsInfo,
     // server info
     pub server_info: ServerInfo,
+    // member info
+    pub member_info: Vec<MemberInfo>,
 }
 
 lazy_static! {
