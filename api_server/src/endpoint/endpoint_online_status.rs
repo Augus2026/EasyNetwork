@@ -25,11 +25,15 @@ async fn update_online_status(
     let mut config = ENDPOINT_CONFIG.lock().unwrap();
 
     let endpoint = config.iter_mut().find(|v| v.uuid == body.uuid);
-    if endpoint.is_none() {
-        return HttpResponse::NotFound().body("Endpoint not found");
+    match endpoint {
+        Some(v) => {
+            v.last_updated = chrono::Utc::now();
+            return HttpResponse::Ok().json(OnlineStatusResponse {
+                status: "success".to_string(),
+            });
+        }
+        None => {
+            return HttpResponse::NotFound().body("Endpoint not found");
+        }
     }
-    endpoint.unwrap().last_updated = chrono::Utc::now();
-    HttpResponse::Ok().json(OnlineStatusResponse {
-        status: "success".to_string(),
-    })
 }

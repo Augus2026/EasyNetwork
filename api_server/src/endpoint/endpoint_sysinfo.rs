@@ -22,16 +22,16 @@ async fn report_sysinfo(body: web::Json<SysInfoRequest>) -> impl Responder {
     let mut config = ENDPOINT_CONFIG.lock().unwrap();
 
     let endpoint = config.iter_mut().find(|v| v.uuid == body.uuid);
-    if endpoint.is_none() {
-        return HttpResponse::NotFound().body("Endpoint not found");
+    match endpoint {
+        Some(v) => {
+            v.deviceInfo = body.deviceInfo.clone();
+            v.last_updated = chrono::Utc::now();
+            return HttpResponse::Ok().json(SuccessResponse {
+                status: "success".to_string(),
+            });
+        }
+        None => {
+            return HttpResponse::NotFound().body("Endpoint not found");
+        }
     }
-
-    // 更新ENDPOINT_CONFIG
-    let endpoint2 = endpoint.unwrap();
-    endpoint2.deviceInfo = body.deviceInfo.clone();
-    endpoint2.last_updated = chrono::Utc::now();
-
-    HttpResponse::Ok().json(SuccessResponse {
-        status: "success".to_string(),
-    })
 }
