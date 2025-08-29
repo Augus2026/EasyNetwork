@@ -8,6 +8,8 @@ import 'package:uuid/uuid.dart';
 import 'pages/settings_page.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_tray/system_tray.dart';
+import 'package:window_manager/window_manager.dart';
 
 Timer startPeriodicTask({
   required Function task,
@@ -47,9 +49,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   EasyNetworkFFI ffi = EasyNetworkFFI();
 
+  final SystemTray _systemTray = SystemTray();
+  final WindowManager _windowManager = WindowManager.instance;
+  final Menu _menu = Menu();
+
   @override
   void initState() {
     super.initState();
+    initSystemTray();
 
     // 注册依赖
     Get.put(this);
@@ -544,5 +551,87 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
+  }
+
+  Future<void> initSystemTray() async {
+    // 加载托盘图标
+    const String iconPath = 'assets/logo.ico';
+    
+    // 创建菜单项
+    await _menu.buildFrom([
+      MenuItemLabel(
+        label: '显示窗口',
+        onClicked: (meunItem) => _windowManager.show(),
+      ),
+      MenuItemLabel(
+        label: '隐藏窗口',
+        onClicked: (meunItem) => _windowManager.hide(),
+      ),
+      SubMenu(
+        label: '语言',
+        children: [
+          MenuItemLabel(
+            label: '中文',
+            onClicked: (menuItem) async {
+              debugPrint("中文");
+            },
+          ),
+          MenuItemLabel(
+            label: 'English',
+            onClicked: (menuItem) async {
+              debugPrint("English");
+            },
+          ),
+        ]
+      ),
+      SubMenu(
+        label: '主题',
+        children: [
+          MenuItemLabel(
+            label: 'dark',
+            onClicked: (menuItem) async {
+              debugPrint("dark");
+            },
+          ),
+          MenuItemLabel(
+            label: 'light',
+            onClicked: (menuItem) async {
+              debugPrint("light");
+            },
+          ),
+        ]
+      ),
+      MenuSeparator(),
+      MenuItemLabel(
+        label: '退出',
+        onClicked: (meunItem) => _windowManager.destroy(),
+      ),
+    ]);
+
+    // 等待窗口管理器初始化完成
+    await _windowManager.ensureInitialized();
+
+    // 初始化系统托盘
+    await _systemTray.initSystemTray(
+      title: "EasyNetwork",
+      iconPath: iconPath,
+    );
+    await _systemTray.setContextMenu(_menu);
+    
+    // 设置托盘菜单
+    _systemTray.registerSystemTrayEventHandler((eventName) {
+      if (eventName == kSystemTrayEventClick) {
+        _windowManager.isVisible().then((visible) {
+          if (visible) {
+            _windowManager.hide();
+          } else {
+            _windowManager.show();
+            _windowManager.focus();
+          }
+        });
+      } else if (eventName == kSystemTrayEventRightClick) {
+        _systemTray.popUpContextMenu();
+      }
+    });
   }
 }
