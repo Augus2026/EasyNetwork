@@ -59,7 +59,7 @@ class EasyNetworkFFI {
     String ifdesc,
     String ip,
     String netmask,
-    String mtu,
+    int mtu,
     String domain,
     String nameServer,
     String searchList,
@@ -69,7 +69,7 @@ class EasyNetworkFFI {
     final ifdescNative = ifdesc.toNativeUtf8();
     final ipNative = ip.toNativeUtf8();
     final netmaskNative = netmask.toNativeUtf8();
-    final mtuNative = mtu.toNativeUtf8();
+    final mtuNative = mtu.toString().toNativeUtf8();
     final domainNative = domain.toNativeUtf8();
     final nameServerNative = nameServer.toNativeUtf8();
     final searchListNative = searchList.toNativeUtf8();

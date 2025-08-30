@@ -14,8 +14,9 @@ struct SuccessResponse {
 async fn member_leave(
     path: web::Path<(String, String)>,
 ) -> impl Responder {
-    let (network_id, member_id) = path.into_inner();
+    println!("member_leave {:?}", path);
 
+    let (network_id, member_id) = path.into_inner();
     let mut config = match NETWORK_CONFIG.lock() {
         Ok(guard) => guard,
         Err(_) => {

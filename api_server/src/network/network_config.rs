@@ -43,8 +43,8 @@ pub struct DnsInfo {
 // server info
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ServerInfo {
-    pub server_address: String,
-    pub server_port: String,
+    pub reply_address: String,
+    pub reply_port: String,
 }
 
 // member info
@@ -55,8 +55,10 @@ pub struct MemberInfo {
     pub name: String,
     pub desc: String,
     pub auth: String,
-    pub address: String,
-    pub managed_ips: String,
+    pub mac_address: String,
+    pub ipv4_address: String,
+    pub subnet_mask: String,
+    pub mtu: i32,
     pub last_seen: String,
     pub version: String,
     pub physical_ip: String,

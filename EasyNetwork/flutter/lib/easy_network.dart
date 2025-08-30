@@ -188,6 +188,60 @@ class _MyHomePageState extends State<MyHomePage> {
     _secondsSinceLastUpdate = 0;
   }
 
+  void setReplyServerAddress(Map<String, dynamic> result) async {
+    final servers = result['server_info'];
+    var replyAddress = servers['reply_address'].toString();
+    try {
+      if (replyAddress.startsWith('127.')) {
+        replyAddress = 'localhost';
+      } else {
+        final addresses = await InternetAddress.lookup(replyAddress);
+        replyAddress = addresses.first.address;
+        print('Resolved IP: $replyAddress');
+      }
+    } catch (e) {
+      print('Failed to resolve address: $e');
+    }
+    final replyPort = int.tryParse(servers['reply_port'].toString()) ?? 0;
+    await ffi.setReplyServer(replyAddress, replyPort);
+  }
+
+  void startNetwork(Map<String, dynamic> result) async {
+    final member_info = result['member_info'];
+    final dns_info = result['dns_info'];
+
+    final ifname = member_info['name'].toString();
+    final ifdesc = member_info['desc'].toString();
+    final ip = member_info['ipv4_address'].toString();
+    final netmask = member_info['subnet_mask'].toString();
+    final mtu = member_info['mtu'].toInt();
+    
+    final domain = dns_info['domain'].toString();
+    final nameServer = dns_info['name_server'].toString();
+    final searchList = dns_info['search_list'].toString();
+    await ffi.joinNetwork(ifname, ifdesc, ip, netmask, mtu, domain, nameServer, searchList);
+  }
+
+  void updateRoute(Map<String, dynamic> result) async {
+    final routes = result['route_info'];
+
+    await ffi.cleanRoute();
+    print('Cleaned routes successfully');
+
+    for (final route in routes) {
+      final destination = route['destination'].toString();
+      final netmask = route['netmask'].toString();
+      final gateway = route['gateway'].toString();
+      final metric = route['metric'].toString();
+      await ffi.addRoute(
+          destination: destination,
+          netmask: netmask,
+          gateway: gateway,
+          metric: metric);
+    }
+    print('Updated routes successfully');
+  }
+
   Widget _buildNetworkIdSection() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -218,81 +272,17 @@ class _MyHomePageState extends State<MyHomePage> {
                       print('Joining network...');
                       try {
                         final result = await joinNetwork(
-                          deviceId: _buildDeviceId(),
-                          networkName: _textController.text,
+                          uuid: _deviceUuid,
+                          networkId: _textController.text,
                         );
                         print('Joined network successfully: $result');
-
                         // 设置服务器
-                        final servers = result['server'];
-                        var replyAddress = servers['reply_address'].toString();
-                        try {
-                          final addresses = await InternetAddress.lookup(replyAddress);
-                          replyAddress = addresses.first.address;
-                          print('Resolved IP: $replyAddress');
-                        } catch (e) {
-                          print('Failed to resolve address: $e');
-                        }
-                        final replyPort = servers['reply_port'] is int
-                            ? servers['reply_port'] as int
-                            : int.parse(servers['reply_port'].toString());
-                        await ffi.setReplyServer(replyAddress, replyPort);
-
+                        setReplyServerAddress(result);
                         // 启动网络
-                        final interface = result['interface'];
-                        final ifname = interface['name'].toString();
-                        final ifdesc = interface['desc'].toString();
-                        final ip = interface['ipv4_address'].toString();
-                        final netmask = interface['subnet_mask'].toString();
-                        final mtu = interface['mtu'].toString();
-                        final domain = interface['domain'].toString();
-                        final nameServer = interface['name_server'].toString();
-                        final searchList = interface['search_list'].toString();
-                        await ffi.joinNetwork(ifname, ifdesc, ip, netmask, mtu,
-                            domain, nameServer, searchList);
-
-                        // 更新成员
-                        updateMember() async {
-                          try {
-                            await update_member_online_status(
-                                deviceId: _buildDeviceId(),
-                                networkName: _textController.text);
-                          } catch (e) {
-                            print('Failed to update member: $e');
-                          }
-                        }
-                        _memberUpdateTimer = startPeriodicTask(task: updateMember);
-
+                        startNetwork(result);
                         // 启动路由更新定时器
-                        updateRoute() async {
-                          try {
-                            final routes = await update_route(
-                                deviceId: _buildDeviceId(),
-                                networkName: _textController.text);
-                            print('routes: $routes');
-
-                            await ffi.cleanRoute();
-                            print('Cleaned routes successfully');
-
-                            for (final route in routes) {
-                              final destination =
-                                  route['destination'].toString();
-                              final netmask = route['netmask'].toString();
-                              final gateway = route['gateway'].toString();
-                              final metric = route['metric'].toString();
-                              await ffi.addRoute(
-                                  destination: destination,
-                                  netmask: netmask,
-                                  gateway: gateway,
-                                  metric: metric);
-                            }
-                            print('Updated routes successfully');
-                          } catch (e) {
-                            print('Failed to update routes: $e');
-                          }
-                        }
-                        _routeUpdateTimer = startPeriodicTask(task: updateRoute);
-
+                        updateRoute(result);
+                        // 定时更新成员信息
                         startUpdateMember();
                       } catch (e) {
                         print('Failed to join network: $e');

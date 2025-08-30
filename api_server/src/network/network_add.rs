@@ -63,15 +63,15 @@ pub async fn network_add(
             alloc_type: "easy".to_string(),
             range_start: "192.168.1.100".to_string(),
             range_end: "192.168.1.200".to_string(),
-            selected_range: "192.168.196.*".to_string(),
+            selected_range: "192.168.1.0/24".to_string(),
         },
         dns_info: DnsInfo {
             search_domain: "easy_network.com".to_string(),
             server_address: "default.easy_network.com".to_string(),
         },
         server_info: ServerInfo {
-            server_address: "192.168.1.1".to_string(),
-            server_port: "8080".to_string(),
+            reply_address: "127.0.0.1".to_string(),
+            reply_port: "1234".to_string(),
         },
         member_info: vec![],
     };

@@ -31,7 +31,7 @@ pub async fn network_update(
 ) -> impl Responder {
     let network_id = path.into_inner();
     let mut config = match NETWORK_CONFIG.lock() {
-        Ok(mut config) => config,
+        Ok(config) => config,
         Err(_) => {
             return HttpResponse::InternalServerError().body("Failed to acquire network config lock");
         }

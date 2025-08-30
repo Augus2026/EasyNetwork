@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use validator::Validate;
 
 use crate::endpoint::{
+    EndpointDeviceInfo,
     EndpointConfig,
     ENDPOINT_CONFIG,
 };
@@ -22,8 +23,9 @@ struct OnlineStatusResponse {
 async fn update_online_status(
     body: web::Json<OnlineStatusRequest>
 ) -> impl Responder {
-    let mut config = ENDPOINT_CONFIG.lock().unwrap();
+    println!("update_online_status {:?}", body);
 
+    let mut config = ENDPOINT_CONFIG.lock().unwrap();
     let endpoint = config.iter_mut().find(|v| v.uuid == body.uuid);
     match endpoint {
         Some(v) => {
