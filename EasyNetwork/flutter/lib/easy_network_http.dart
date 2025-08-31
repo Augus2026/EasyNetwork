@@ -101,10 +101,11 @@ Future<bool> update_online_status({
 // 获取网络成员
 Future<List<Map<String, dynamic>>> get_network_members({
   required String networkId,
+  required String memberId,
 }) async {
   try {
     String domain = await get_api_server_address();
-    final url = Uri.parse('http://$domain/api/v1/networks/$networkId/members');
+    final url = Uri.parse('http://$domain/api/v1/networks/$networkId/members/$memberId/status');
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -119,10 +120,11 @@ Future<List<Map<String, dynamic>>> get_network_members({
     if (response.statusCode == 200) {
       final members = (responseData['data'] as List)
           .map((member) => {
-                'name': member['member_id'],
-                'status': member['online'],
-                'icon': member['online'] ? Icons.person : Icons.person_outline,
-              })
+            'name': member['name'],
+            'online': member['online'],
+            'icon': member['online'] ? Icons.person : Icons.person_outline,
+            'status': member['status'],
+          })
           .toList();
       return members;
     } else if (response.statusCode == 400) {

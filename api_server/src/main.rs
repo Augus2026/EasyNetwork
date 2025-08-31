@@ -21,6 +21,7 @@ async fn main() -> std::io::Result<()> {
             .service(endpoint::endpoint_online_status::update_online_status)
             //member
             .service(member::member_list::get_network_members)
+            .service(member::member_status_list::get_network_member_status)
             .service(member::member_join::member_join)
             .service(member::member_leave::member_leave)
             // network

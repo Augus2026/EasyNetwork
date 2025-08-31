@@ -37,6 +37,8 @@ class _MyHomePageState extends State<MyHomePage> {
   late Stream<bool> _onlineStatusStream;
 
   late final String _deviceUuid;
+  late final String _memberUuid;
+
   final _textController = TextEditingController();
   Timer? _routeUpdateTimer;
   Timer? _memberUpdateTimer;
@@ -132,8 +134,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void updateMemberStatus() async {
     if(_isJoined) {
       try {
-        final members =
-            await get_network_members(networkId: _textController.text);
+        String networkId = _textController.text;
+        String memberId = _memberUuid;
+        final members = await get_network_members(networkId: networkId, memberId: memberId);
         _membersController.add(members);
         _lastMemberUpdateTime = DateTime.now();        
       } catch (e) {
@@ -224,12 +227,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void updateRoute(Map<String, dynamic> result) async {
     final routes = result['route_info'];
-
-    await ffi.cleanRoute();
-    print('Cleaned routes successfully');
-
     for (final route in routes) {
-      final destination = route['destination'].toString();
+      final destination = route['dest'].toString();
       final netmask = route['netmask'].toString();
       final gateway = route['gateway'].toString();
       final metric = route['metric'].toString();
@@ -275,13 +274,16 @@ class _MyHomePageState extends State<MyHomePage> {
                           uuid: _deviceUuid,
                           networkId: _textController.text,
                         );
+                        _memberUuid = result['member_info']['id'].toString();
                         print('Joined network successfully: $result');
                         // 设置服务器
                         setReplyServerAddress(result);
                         // 启动网络
                         startNetwork(result);
-                        // 启动路由更新定时器
-                        updateRoute(result);
+                        // 更新路由
+                        Future.delayed(const Duration(seconds: 5), () {
+                          updateRoute(result);
+                        });
                         // 定时更新成员信息
                         startUpdateMember();
                       } catch (e) {
@@ -386,7 +388,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Icon(
                     member['icon'],
                     size: 32,
-                    color: member['status'] ? Colors.green : Colors.grey,
+                    color: member['online'] ? Colors.green : Colors.grey,
                   ),
                   const SizedBox(height: 8),
                   AutoSizeText(

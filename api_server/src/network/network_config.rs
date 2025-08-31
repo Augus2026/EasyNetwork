@@ -36,8 +36,9 @@ pub struct DhcpInfo {
 // dns info
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DnsInfo {
-    pub search_domain: String,
-    pub server_address: String,
+    pub domain: String,
+    pub name_server: String,
+    pub search_list: String,
 }
 
 // server info

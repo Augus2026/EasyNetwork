@@ -53,21 +53,30 @@ pub async fn network_add(
             created: body.created.clone(),
             is_private: body.is_private,
         },
-        route_info: vec![RouteInfo {
-            dest: "192.168.1.0".to_string(),
-            netmask: "255.255.255.0".to_string(),
-            gateway: "192.168.1.1".to_string(),
-            metric: 100,
-        }],
+        route_info: vec![
+            RouteInfo {
+                dest: "192.168.1.0".to_string(),
+                netmask: "255.255.255.0".to_string(),
+                gateway: "192.168.1.1".to_string(),
+                metric: 100,
+            },
+            RouteInfo {
+                dest: "10.10.10.0".to_string(),
+                netmask: "255.255.255.0".to_string(),
+                gateway: "10.10.10.1".to_string(),
+                metric: 100,
+            }
+        ],
         dhcp_info: DhcpInfo {
-            alloc_type: "easy".to_string(),
+            alloc_type: "advanced".to_string(),
             range_start: "192.168.1.100".to_string(),
             range_end: "192.168.1.200".to_string(),
             selected_range: "192.168.1.0/24".to_string(),
         },
         dns_info: DnsInfo {
-            search_domain: "easy_network.com".to_string(),
-            server_address: "default.easy_network.com".to_string(),
+            domain: "default.easy_network.com".to_string(),
+            name_server: "114.114.114.114,8.8.8.8".to_string(),
+            search_list: "easy_network.com".to_string(),
         },
         server_info: ServerInfo {
             reply_address: "127.0.0.1".to_string(),

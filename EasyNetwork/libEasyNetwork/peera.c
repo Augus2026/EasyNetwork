@@ -1,6 +1,7 @@
-#include "easy_network_ffi.h"
+#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "easy_network_ffi.h"
 
 int main(int argc, char* argv[]) {
     const char* server_ip = "127.0.0.1";
@@ -19,7 +20,7 @@ int main(int argc, char* argv[]) {
     }
 
     set_reply_server(server_ip, server_port);
-    join_network("eth0", "EasyNetwork", "10.10.10.11", "255.255.255.0", "1400", "example.com", "8.8.8.8", "8.8.4.4");
+    join_network("eth0", "EasyNetwork", "10.10.10.11", "255.255.255.0", "1400", "default.easy_network.com", "114.114.114.114,8.8.8.8", "easy_network.com");
     Sleep(3000);
     add_route("10.10.10.0", "255.255.255.0", "10.10.10.11", "100");
 

@@ -16,7 +16,7 @@ if /i "%~1"=="flutter" (
     echo Building Flutter application...
 
     pushd .\EasyNetwork\libEasyNetwork
-    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/Users/shiguoliang/temp/vcpkg-export-20250726-155106/scripts/buildsystems/vcpkg.cmake
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250831-140452/scripts/buildsystems/vcpkg.cmake
     cmake --build ./build --config Release
     popd
 ) else if /i "%~1"=="lib" (
@@ -38,7 +38,7 @@ if /i "%~1"=="flutter" (
     echo Building mTLS server...
 
     pushd .\mtls_server
-    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/Users/shiguoliang/temp/vcpkg-export-20250726-155106/scripts/buildsystems/vcpkg.cmake
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250831-140452/scripts/buildsystems/vcpkg.cmake
     cmake --build ./build --config Release
     popd
 ) else (
