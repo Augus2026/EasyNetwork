@@ -382,26 +382,29 @@ class _MyHomePageState extends State<MyHomePage> {
             itemCount: members.length,
             itemBuilder: (context, index) {
               final member = members[index];
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    member['icon'],
-                    size: 32,
-                    color: member['online'] ? Colors.green : Colors.grey,
-                  ),
-                  const SizedBox(height: 8),
-                  AutoSizeText(
-                    member['name'],
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
+              return Tooltip(
+                message: member['status'],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      member['icon'],
+                      size: 32,
+                      color: member['online'] ? Colors.green : Colors.grey,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    minFontSize: 9,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    AutoSizeText(
+                      member['name'],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      minFontSize: 9,
+                    ),
+                  ],
+                ),
               );
             },
           ),
