@@ -2,6 +2,7 @@ use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU8, Ordering};
+use rand::Rng;
 
 use crate::network::{
     BasicInfo,
@@ -42,6 +43,71 @@ struct SuccessResponse {
     data: MemberJoinInfo,
 }
 
+fn gen_mac_address() -> String {
+    // 生成mac地址（本地管理地址）
+    let mut bytes = [0u8; 6];
+    let _ = rand::thread_rng().try_fill(&mut bytes);
+    bytes[0] |= 0x02; // 设置本地管理位
+    bytes[0] &= 0xFE; // 确保单播位
+    
+    let mac_address = format!(
+        "{:02X}:{:02X}:{:02X}:{:02X}:{:02X}:{:02X}",
+        bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]
+    );
+    mac_address
+}
+
+fn get_valid_ip_address(
+    range_start: u8, 
+    range_end: u8, 
+    members: Vec<MemberInfo>,
+    ip_prefix: &str
+) -> Option<String> {
+    for i in range_start..=range_end {
+        let ip = format!("{}.{}", ip_prefix, i);
+        let mut is_ip_exist = false;
+        
+        for member in &members {
+            if member.ipv4_address == ip {
+                is_ip_exist = true;
+                break;
+            }
+        }
+        
+        if !is_ip_exist {
+            return Some(ip);
+        }
+    }
+    None
+}
+
+fn split_cidr(cidr: &str) -> Result<(String, String), String> {
+    let parts: Vec<&str> = cidr.split('/').collect();
+    
+    if parts.len() != 2 {
+        return Err("Invalid CIDR format. Expected format: x.x.x.x/n".to_string());
+    }
+    
+    let ip_address = parts[0].to_string();
+    let prefix_length: u8 = match parts[1].parse() {
+        Ok(n) if n <= 32 => n,
+        _ => return Err("Invalid prefix length. Must be between 0 and 32".to_string()),
+    };
+    
+    // 计算子网掩码
+    let mask_bits = u32::MAX << (32 - prefix_length);
+    let subnet_mask = format!(
+        "{}.{}.{}.{}",
+        (mask_bits >> 24) & 0xFF,
+
+        (mask_bits >> 16) & 0xFF,
+        (mask_bits >> 8) & 0xFF,
+        mask_bits & 0xFF
+    );
+    
+    Ok((ip_address, subnet_mask))
+}
+
 #[post("/api/v1/networks/{network_id}/join")]
 async fn member_join(
     path: web::Path<String>,
@@ -70,26 +136,26 @@ async fn member_join(
             // 生成id
             let member_id = uuid::Uuid::new_v4().to_string();
             // 生成mac地址
-            let mac_address = uuid::Uuid::new_v4().to_string();
+            let mac_address = gen_mac_address();
             // 生成ip地址
             let alloc_type  = network.dhcp_info.alloc_type.clone();
-            let ip4_address: String;
-            let subnet_mask: String;
+            let mut ip4_address: String;
+            let mut subnet_mask: String;
             match alloc_type.as_str() {
                 "easy" => {
                     let range_start = 0;
                     let range_end = 255;
-                    let ip_prefix = network.dhcp_info.selected_range.split('.').take(3).collect::<Vec<&str>>().join(".");
-                    let ip_last_octet = range_start;
-                    ip4_address = format!("{}.{}", ip_prefix, ip_last_octet);
-                    subnet_mask = "255.255.255.0".to_string();
+
+                    (ip4_address, subnet_mask) = split_cidr(&network.dhcp_info.selected_range).unwrap();
+                    let ip_prefix = ip4_address.split('.').take(3).collect::<Vec<&str>>().join(".");
+                    ip4_address = get_valid_ip_address(range_start, range_end, network.member_info.clone(), &ip_prefix).unwrap();
                 }
                 "advanced" => {
                     let range_start = network.dhcp_info.range_start.split('.').last().unwrap().parse::<u8>().unwrap();
                     let range_end = network.dhcp_info.range_end.split('.').last().unwrap().parse::<u8>().unwrap();
+
                     let ip_prefix = &network.dhcp_info.range_start[..network.dhcp_info.range_start.rfind('.').unwrap()];
-                    let ip_last_octet = range_start;
-                    ip4_address = format!("{}.{}", ip_prefix, ip_last_octet);
+                    ip4_address = get_valid_ip_address(range_start, range_end, network.member_info.clone(), ip_prefix).unwrap();
                     subnet_mask = "255.255.255.0".to_string();
                 }
                 _ => {
