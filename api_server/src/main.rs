@@ -8,6 +8,7 @@ mod network;
 
 const SERVER_IP: &str = "0.0.0.0";
 const SERVER_PORT: u16 = 8000;
+const DASHBOARD_PATH: &str = "./dashboard/build/web";
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -40,7 +41,7 @@ async fn main() -> std::io::Result<()> {
                     .finish()
             })))
             // 静态文件服务
-            .service(Files::new("/easy_network", "./dashboard/build/web")
+            .service(Files::new("/easy_network", DASHBOARD_PATH)
                 .index_file("index.html")
                 .show_files_listing())
             // endpoint
