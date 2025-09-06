@@ -140,7 +140,7 @@ async fn member_join(
             // 生成ip地址
             let alloc_type  = network.dhcp_info.alloc_type.clone();
             let mut ip4_address: String;
-            let mut subnet_mask: String;
+            let subnet_mask: String;
             match alloc_type.as_str() {
                 "easy" => {
                     let range_start = 0;

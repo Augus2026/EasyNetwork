@@ -27,12 +27,12 @@ Future<Map<String, dynamic>> _getDeviceInfo() async {
 }
 
 // 获取在线状态
-Future<bool> report_sysinfo({
+Future<bool> report_device_sysinfo({
   required String uuid,
 }) async {
   try {
     String domain = await get_api_server_address();
-    final url = Uri.parse('http://$domain/api/v1/endpoint/sysinfo');
+    final url = Uri.parse('http://$domain/api/v1/device/sysinfo');
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ Future<bool> report_sysinfo({
 
     final body = jsonEncode({
       'uuid': uuid,
-      'deviceInfo': await _getDeviceInfo(),
+      'device_info': await _getDeviceInfo(),
     });
 
     final response = await http.post(
@@ -68,7 +68,7 @@ Future<bool> update_online_status({
 }) async {
   try {
     String domain = await get_api_server_address();
-    final url = Uri.parse('http://$domain/api/v1/endpoint/online_status');
+    final url = Uri.parse('http://$domain/api/v1/device/online_status');
     final headers = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -93,7 +93,6 @@ Future<bool> update_online_status({
       throw Exception('Failed to update online status: ${response.statusCode}');
     }
   } catch (e) {
-    print('update_online_status error: $e');
     throw Exception('Network error: $e');
   }
 }

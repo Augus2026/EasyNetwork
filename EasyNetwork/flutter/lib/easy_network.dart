@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
 
-    report_sysinfo(uuid: _deviceUuid).catchError((e) {
+    report_device_sysinfo(uuid: _deviceUuid).catchError((e) {
       print('Failed to report system info: $e');
     });
   }

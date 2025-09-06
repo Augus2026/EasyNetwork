@@ -17,7 +17,7 @@ struct SuccessResponse {
 pub async fn get_network_members(
     path: web::Path<String>,
 ) -> impl Responder {
-    let (network_id) = path.into_inner();
+    let network_id = path.into_inner();
 
     let mut config = match NETWORK_CONFIG.lock() {
         Ok(guard) => guard,

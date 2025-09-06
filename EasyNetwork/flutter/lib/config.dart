@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<String> get_api_server_address() async {
-  String server_address = "cn-easy-network.com";
-  String server_port = "1001";
+  String server_address = "localhost";
+  String server_port = "1000";
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool forceUseApiServer = prefs.getBool('forceUseApiServer') ?? false;
@@ -16,8 +16,8 @@ Future<String> get_api_server_address() async {
 }
 
 Future<String> get_reply_server_address() async {
-  String server_address = ""; // 192.168.1.1
-  String server_port = ""; // 1234
+  String server_address = ""; // localhost
+  String server_port = ""; // 1001
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool forceUseReplyServer = prefs.getBool('forceUseReplyServer') ?? false;

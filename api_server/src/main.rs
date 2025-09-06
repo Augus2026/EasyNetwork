@@ -3,12 +3,12 @@ use actix_files::Files;
 use actix_cors::Cors;
 use std::env;
 
-mod endpoint;
+mod device;
 mod member;
 mod network;
 
-const DEFAULT_SERVER_IP: &str = "0.0.0.0";
-const DEFAULT_SERVER_PORT: u16 = 8000;
+const DEFAULT_SERVER_IP: &str = "localhost";
+const DEFAULT_SERVER_PORT: u16 = 1000;
 const DEFAULT_DASHBOARD_PATH: &str = "./dashboard/build/web";
 
 #[actix_web::main]
@@ -47,20 +47,20 @@ async fn main() -> std::io::Result<()> {
             )
             // logger中间件
             .wrap(Logger::default())
-            // index.html
-            .service(web::resource("/").route(web::get().to(|| async {
-                HttpResponse::Found()
-                    .append_header(("Location", "/easy_network"))
-                    .finish()
-            })))
+            // // index.html
+            // .service(web::resource("/").route(web::get().to(|| async {
+            //     HttpResponse::Found()
+            //         .append_header(("Location", "/dashboard"))
+            //         .finish()
+            // })))
             // 静态文件服务
-            .service(Files::new("/easy_network", &dashboard_path)
+            .service(Files::new("/dashboard", &dashboard_path)
                 .index_file("index.html")
                 .show_files_listing())
             // endpoint
-            .service(endpoint::endpoint_sysinfo::report_sysinfo)
-            .service(endpoint::endpoint_list::get_all_endpoints)
-            .service(endpoint::endpoint_online_status::update_online_status)
+            .service(device::device_sysinfo::report_device_sysinfo)
+            .service(device::device_list::get_all_devices)
+            .service(device::device_online_status::update_online_status)
             //member
             .service(member::member_list::get_network_members)
             .service(member::member_status_list::get_network_member_status)
