@@ -1,26 +1,39 @@
 use actix_web::{App, HttpServer, middleware::Logger, web, HttpResponse};
 use actix_files::Files;
 use actix_cors::Cors;
+use std::env;
 
 mod endpoint;
 mod member;
 mod network;
 
-const SERVER_IP: &str = "0.0.0.0";
-const SERVER_PORT: u16 = 8000;
-const DASHBOARD_PATH: &str = "./dashboard/build/web";
+const DEFAULT_SERVER_IP: &str = "0.0.0.0";
+const DEFAULT_SERVER_PORT: u16 = 8000;
+const DEFAULT_DASHBOARD_PATH: &str = "./dashboard/build/web";
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    // 解析命令行参数
+    let args: Vec<String> = env::args().collect();
+    let mut dashboard_path = DEFAULT_DASHBOARD_PATH.to_string();
+    
+    for i in 1..args.len() {
+        if args[i] == "--dashboard-path" && i + 1 < args.len() {
+            dashboard_path = args[i + 1].clone();
+            break;
+        }
+    }
+
     // 初始化日志
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
-    let server_ip = SERVER_IP;
-    let server_port = SERVER_PORT;
+    let server_ip = DEFAULT_SERVER_IP;
+    let server_port = DEFAULT_SERVER_PORT;
     println!("Server started, listening on port: {}:{}", server_ip, server_port);
+    println!("Dashboard path: {}", dashboard_path);
     
-    HttpServer::new(|| {
+    HttpServer::new(move || {
         App::new()
             // CORS中间件
             .wrap(
@@ -41,7 +54,7 @@ async fn main() -> std::io::Result<()> {
                     .finish()
             })))
             // 静态文件服务
-            .service(Files::new("/easy_network", DASHBOARD_PATH)
+            .service(Files::new("/easy_network", &dashboard_path)
                 .index_file("index.html")
                 .show_files_listing())
             // endpoint
