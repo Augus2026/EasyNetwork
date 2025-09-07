@@ -1,20 +1,12 @@
 use rusqlite::{Connection, Result, params};
-use std::sync::Mutex;
-use lazy_static::lazy_static;
-use tokio::time::{interval, Duration};
 
 use crate::device::{
-    DeviceConfig,
-    DEVICE_CONFIG
+    DeviceConfig
 };
 
-lazy_static! {
-    static ref DB_CONNECTION: Mutex<Option<Connection>> = Mutex::new(None);
-}
+use crate::database::DB_CONNECTION;
 
-pub fn init_database() -> Result<()> {
-    let conn = Connection::open("device_config.db")?;
-    
+pub fn init_device_database(conn: &Connection) -> Result<()> {    
     conn.execute(
         "CREATE TABLE IF NOT EXISTS device_config (
             uuid TEXT PRIMARY KEY,
@@ -32,11 +24,7 @@ pub fn init_database() -> Result<()> {
             last_updated TEXT
         )",
         [],
-    )?;
-    
-    let mut db_guard = DB_CONNECTION.lock().unwrap();
-    *db_guard = Some(conn);
-    
+    )?;    
     Ok(())
 }
 
@@ -108,51 +96,4 @@ pub fn save_all_devices(devices: &[DeviceConfig]) -> Result<()> {
         save_device_config(device)?;
     }
     Ok(())
-}
-
-pub async fn load_all_config() -> Result<()> {
-    let devices = load_all_devices().map_err(|e| {
-        eprintln!("Failed to load devices from database: {}", e);
-        e
-    })?;
-    
-    let mut config = DEVICE_CONFIG.lock().unwrap();
-    *config = devices;
-    
-    println!("Successfully loaded {} devices from database", config.len());
-    
-    if config.is_empty() {
-        println!("No devices found in database");
-    } else {
-        println!("Device details:");
-        for (i, device) in config.iter().enumerate() {
-            println!("  Device {}:", i + 1);
-            println!("    UUID: {}", device.uuid);
-            println!("    Computer Name: {}", device.computer_name);
-            println!("    Processors: {}", device.num_processor);
-            println!("    Memory: {}", device.memory);
-            println!("    Last Updated: {}", device.last_updated.format("%Y-%m-%d %H:%M:%S"));
-        }
-    }
-    
-    Ok(())
-}
-
-pub async fn save_all_config() {
-
-    let config = DEVICE_CONFIG.lock().unwrap();
-    if let Err(e) = crate::database::save_all_devices(&config) {
-        eprintln!("Auto-save failed: {}", e);
-    } else {
-        println!("Auto-saved {} devices to database", config.len());
-    }
-}
-
-pub async fn start_auto_save() {
-    let mut interval = interval(Duration::from_secs(5));
-    
-    loop {
-        interval.tick().await;
-        save_all_config().await;
-    }
 }
