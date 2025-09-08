@@ -79,8 +79,8 @@ pub async fn network_add(
             search_list: "easy_network.com".to_string(),
         },
         server_info: ServerInfo {
-            reply_address: "127.0.0.1".to_string(),
-            reply_port: "1234".to_string(),
+            reply_address: "localhost".to_string(),
+            reply_port: "1001".to_string(),
         },
         member_info: vec![],
     };
