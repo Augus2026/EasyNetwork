@@ -66,6 +66,45 @@ jobs:
         name: mtls-server-release
         path: ${{ env.PACKAGE_PATH }}
 
+  build-dashboard:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+
+      - name: Install dependencies
+        run: |
+          cd api_server/dashboard/
+          flutter doctor
+          flutter pub get
+          flutter pub run ffigen --config ffigen.yaml
+          
+      - name: Build Windows release
+        shell: bash
+        run: |
+          cd api_server/dashboard/
+          flutter build windows --release
+          ls build/windows/x64/runner/Release/
+
+      - name: Package and export
+        shell: bash
+        run: |
+          cd api_server/dashboard/ || exit 1
+          mkdir -p release/ || { echo "Failed to create release/"; exit 1; }
+          cp -a build/windows/x64/runner/Release/. release/ || { echo "Failed to copy files"; exit 1; }
+          tar czvf dashboard-release.tar.gz -C release .
+          echo "PACKAGE_PATH=$(cygpath -w "$(pwd)/dashboard-release.tar.gz")" >> $GITHUB_ENV
+
+      - name: Upload release package
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-dashboard-release
+          path: ${{ env.PACKAGE_PATH }}
+
   build-api-server:
     runs-on: ubuntu-latest
 
@@ -267,7 +306,7 @@ jobs:
         path: ${{ env.PACKAGE_PATH }}
   
   release:
-    needs: [build-mtls-server, build-api-server, build-flutter, build-api-server-aarch64v8, build-mtls-server-aarch64v8]
+    needs: [build-mtls-server, build-dashboard, build-api-server, build-flutter, build-api-server-aarch64v8, build-mtls-server-aarch64v8]
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     
@@ -277,6 +316,12 @@ jobs:
         with:
           name: mtls-server-release
           path: release-artifacts/mtls-server
+
+      - name: Download dashboard artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dashboard-release
+          path: release-artifacts/dashboard
 
       - name: Download api server artifact
         uses: actions/download-artifact@v4
@@ -309,9 +354,10 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             EasyNetwork 版本发布
-            - 包含: mtls server, api server, flutter windows client, api server aarch64v8, mtls server aarch64v8
+            - 包含: mtls server, dashboard, api server, flutter windows client, api server aarch64v8, mtls server aarch64v8
           files: |
             release-artifacts/mtls-server/*
+            release-artifacts/dashboard/*
             release-artifacts/api-server/*
             release-artifacts/flutter-client/*
             release-artifacts/api-server-aarch64v8/*
