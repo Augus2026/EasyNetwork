@@ -81,21 +81,19 @@ jobs:
           cd api_server/dashboard/
           flutter doctor
           flutter pub get
-          flutter pub run ffigen --config ffigen.yaml
           
       - name: Build Windows release
         shell: bash
         run: |
           cd api_server/dashboard/
-          flutter build windows --release
-          ls build/windows/x64/runner/Release/
+          flutter build web --base-href=/dashboard/
 
       - name: Package and export
         shell: bash
         run: |
           cd api_server/dashboard/ || exit 1
           mkdir -p release/ || { echo "Failed to create release/"; exit 1; }
-          cp -a build/windows/x64/runner/Release/. release/ || { echo "Failed to copy files"; exit 1; }
+          cp -a build/web/. release/ || { echo "Failed to copy files"; exit 1; }
           tar czvf dashboard-release.tar.gz -C release .
           echo "PACKAGE_PATH=$(cygpath -w "$(pwd)/dashboard-release.tar.gz")" >> $GITHUB_ENV
 
@@ -136,7 +134,7 @@ jobs:
         name: api-server-release
         path: ${{ env.PACKAGE_PATH }}
 
-  build-flutter:
+  build-windows-client:
     runs-on: windows-latest
 
     steps:
@@ -192,13 +190,13 @@ jobs:
           cd EasyNetwork/flutter/ || exit 1
           mkdir -p release/ || { echo "Failed to create release/"; exit 1; }
           cp -a build/windows/x64/runner/Release/. release/ || { echo "Failed to copy files"; exit 1; }
-          tar czvf flutter-client-release.tar.gz -C release .
-          echo "PACKAGE_PATH=$(cygpath -w "$(pwd)/flutter-client-release.tar.gz")" >> $GITHUB_ENV
+          tar czvf windows-client-release.tar.gz -C release .
+          echo "PACKAGE_PATH=$(cygpath -w "$(pwd)/windows-client-release.tar.gz")" >> $GITHUB_ENV
 
       - name: Upload release package
         uses: actions/upload-artifact@v4
         with:
-          name: flutter-client-release
+          name: windows-client-release
           path: ${{ env.PACKAGE_PATH }}
 
   build-api-server-aarch64v8:
@@ -306,7 +304,7 @@ jobs:
         path: ${{ env.PACKAGE_PATH }}
   
   release:
-    needs: [build-mtls-server, build-dashboard, build-api-server, build-flutter, build-api-server-aarch64v8, build-mtls-server-aarch64v8]
+    needs: [build-mtls-server, build-dashboard, build-api-server, build-windows-client, build-api-server-aarch64v8, build-mtls-server-aarch64v8]
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     
@@ -329,11 +327,11 @@ jobs:
           name: api-server-release
           path: release-artifacts/api-server
 
-      - name: Download flutter client artifact
+      - name: Download windows client artifact
         uses: actions/download-artifact@v4
         with:
-          name: flutter-client-release
-          path: release-artifacts/flutter-client
+          name: windows-client-release
+          path: release-artifacts/windows-client
 
       - name: Download api server aarch64v8 artifact
         uses: actions/download-artifact@v4
@@ -354,12 +352,12 @@ jobs:
           name: Release ${{ github.ref_name }}
           body: |
             EasyNetwork 版本发布
-            - 包含: mtls server, dashboard, api server, flutter windows client, api server aarch64v8, mtls server aarch64v8
+            - 包含: mtls server, dashboard, api server, windows client, api server aarch64v8, mtls server aarch64v8
           files: |
             release-artifacts/mtls-server/*
             release-artifacts/dashboard/*
             release-artifacts/api-server/*
-            release-artifacts/flutter-client/*
+            release-artifacts/windows-client/*
             release-artifacts/api-server-aarch64v8/*
             release-artifacts/mtls-server-aarch64v8/*
         env:
