@@ -82,11 +82,11 @@ jobs:
           flutter doctor
           flutter pub get
           
-      - name: Build Windows release
+      - name: Build web release
         shell: bash
         run: |
           cd api_server/dashboard/
-          flutter build web --base-href=/dashboard/
+          flutter build web --base-href='/dashboard/'
 
       - name: Package and export
         shell: bash
