@@ -100,7 +100,7 @@ jobs:
       - name: Upload release package
         uses: actions/upload-artifact@v4
         with:
-          name: flutter-dashboard-release
+          name: dashboard-release
           path: ${{ env.PACKAGE_PATH }}
 
   build-api-server:
