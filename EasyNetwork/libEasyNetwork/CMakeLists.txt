@@ -84,12 +84,6 @@ add_custom_command(TARGET EasyNetwork POST_BUILD
         $<TARGET_FILE_DIR:EasyNetwork>
 )
 
-add_custom_command(TARGET EasyNetwork POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/ca
-        $<TARGET_FILE_DIR:EasyNetwork>
-)
-
 # 添加 peera.c 作为可执行目标
 add_executable(peera peera.c)
 target_link_libraries(peera EasyNetwork)
