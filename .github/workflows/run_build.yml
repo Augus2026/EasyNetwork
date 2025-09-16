@@ -291,9 +291,7 @@ jobs:
         cd mtls_server
         mkdir -p release/
         cp build/mtls_server release/ 2>/dev/null || :
-        cp build/*.so release/ 2>/dev/null || :
-        cp build/*.pem release/ 2>/dev/null || :
-        cp build/*.der release/ 2>/dev/null || :
+        cp build/assets/* release/ 2>/dev/null || :
         tar czvf mtls-server-release-aarch64v8.tar.gz -C release .
         echo "PACKAGE_PATH=$(pwd)/mtls-server-release-aarch64v8.tar.gz" >> $GITHUB_ENV
 
