@@ -1,0 +1,13 @@
+#!/bin/sh /etc/rc.common
+
+T=99
+STOP=01
+
+start() {
+	cd /bin/easynet/api_server
+	./api_server &
+}
+
+stop() {
+	killall api_server
+}

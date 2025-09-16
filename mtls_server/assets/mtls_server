@@ -1,0 +1,13 @@
+#!/bin/sh /etc/rc.common
+
+T=99
+STOP=01
+
+start() {
+	cd /bin/easynet/mtls_server
+	./mtls_server &
+}
+
+stop() {
+	killall mtls_server
+}
