@@ -4,8 +4,8 @@ T=99
 STOP=01
 
 start() {
-	cd /bin/easynet/api_server
-	./api_server &
+	chmod +x /bin/easynet/api_server
+	/bin/easynet/api_server --dashboard-path $(pwd)/dashboard --server-ip 0.0.0.0 &
 }
 
 stop() {

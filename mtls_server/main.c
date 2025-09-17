@@ -106,6 +106,21 @@ done:
 }
 
 int main(int argc, char* argv[]) {
+    char* ca_cert_path = "/etc/easynet/certs/server-cert.pem";
+    char* ca_key_path = "/etc/easynet/certs/server-key.pem";
+    
+    // 解析命令行参数
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--ca-path") == 0 && i + 1 < argc) {
+            ca_cert_path = argv[++i];
+        } else if (strcmp(argv[i], "--ca-key") == 0 && i + 1 < argc) {
+            ca_key_path = argv[++i];
+        } else {
+			printf("Unknown argument: %s\n", argv[i]);
+			return -1;
+		}
+    }
+
 #ifdef _WIN32
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -137,13 +152,13 @@ int main(int argc, char* argv[]) {
 	}
 
 	// 加载服务器证书
-	if (wolfSSL_CTX_use_certificate_file(ctx, "server-cert.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+	if (wolfSSL_CTX_use_certificate_file(ctx, ca_cert_path, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 		printf("Error loading server certificate\n");
 		goto done;
 	}
 
 	// 加载服务器私钥
-	if (wolfSSL_CTX_use_PrivateKey_file(ctx, "server-key.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+	if (wolfSSL_CTX_use_PrivateKey_file(ctx, ca_key_path, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
 		printf("Error loading server private key\n");
 		goto done;
 	}

@@ -4,8 +4,8 @@ T=99
 STOP=01
 
 start() {
-	cd /bin/easynet/mtls_server
-	./mtls_server &
+	chmod +x /bin/easynet/mtls_server
+	/bin/easynet/mtls_server --ca-path /etc/easynet/certs/server-cert.pem --ca-key /etc/easynet/certs/server-key.pem &
 }
 
 stop() {
