@@ -45,10 +45,3 @@ add_custom_command(TARGET mtls_server POST_BUILD
         $<TARGET_FILE:wolfssl::wolfssl>
         $<TARGET_FILE_DIR:mtls_server>
 )
-
-# copy assets
-add_custom_command(TARGET mtls_server POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets
-        $<TARGET_FILE_DIR:mtls_server>
-)

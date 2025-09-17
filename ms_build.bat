@@ -38,7 +38,7 @@ if /i "%~1"=="flutter" (
     echo Building mTLS server...
 
     pushd .\mtls_server
-    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250831-140452/scripts/buildsystems/vcpkg.cmake
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250918-001900/scripts/buildsystems/vcpkg.cmake
     cmake --build ./build --config Release
     popd
 ) else (
