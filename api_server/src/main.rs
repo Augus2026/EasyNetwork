@@ -17,6 +17,7 @@ async fn main() -> std::io::Result<()> {
     let mut server_ip = DEFAULT_SERVER_IP.to_string();
     let mut server_port = DEFAULT_SERVER_PORT;
     let mut dashboard_path = DEFAULT_DASHBOARD_PATH.to_string();
+    let mut db_path = "./config.db".to_string();
 
     // 解析命令行参数
     let args: Vec<String> = env::args().collect();
@@ -38,6 +39,12 @@ async fn main() -> std::io::Result<()> {
             break;
         }
     }
+    for i in 1..args.len() {
+        if args[i] == "--db-path" && i + 1 < args.len() {
+            db_path = args[i + 1].clone();
+            break;
+        }
+    }
 
     // 初始化日志
     std::env::set_var("RUST_LOG", "actix_web=info");
@@ -45,7 +52,7 @@ async fn main() -> std::io::Result<()> {
     println!("Server started, listening on port: {}:{} dashboard path: {}", server_ip, server_port, dashboard_path);
 
     // 初始化数据库
-    if let Err(e) = database::init_database() {
+    if let Err(e) = database::init_database(db_path) {
         eprintln!("Failed to initialize database: {}", e);
         return Err(std::io::Error::new(std::io::ErrorKind::Other, e.to_string()));
     }

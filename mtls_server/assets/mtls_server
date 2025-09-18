@@ -5,7 +5,9 @@ STOP=01
 
 start() {
 	chmod +x /bin/easynet/mtls_server
-	/bin/easynet/mtls_server --ca-path /etc/easynet/certs/server-cert.pem --ca-key /etc/easynet/certs/server-key.pem &
+	/bin/easynet/mtls_server \
+	--ca-path /etc/easynet/certs/server-cert.pem \
+	--ca-key /etc/easynet/certs/server-key.pem > mtls_server.log 2>&1 &	
 }
 
 stop() {

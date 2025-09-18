@@ -27,8 +27,8 @@ lazy_static! {
     pub static ref DB_CONNECTION: Mutex<Option<Connection>> = Mutex::new(None);
 }
 
-pub fn init_database() -> Result<()> {
-    let conn = Connection::open("config.db")?;
+pub fn init_database(db_path: String) -> Result<()> {
+    let conn = Connection::open(db_path)?;
     init_device_database(&conn)?;
     init_network_database(&conn)?;
     let mut db_guard = DB_CONNECTION.lock().unwrap();

@@ -5,7 +5,10 @@ STOP=01
 
 start() {
 	chmod +x /bin/easynet/api_server
-	/bin/easynet/api_server --dashboard-path $(pwd)/dashboard --server-ip 0.0.0.0 &
+	/bin/easynet/api_server \
+	--dashboard-path /bin/easynet/dashboard \
+	--server-ip 0.0.0.0 \
+	--db-path /etc/easynet/config.db > api_server.log 2>&1 &
 }
 
 stop() {

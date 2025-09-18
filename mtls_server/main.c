@@ -16,7 +16,8 @@
 #include <pthread.h>
 #endif
 
-#define PORT 1234
+#define DEFAULT_SERVER_IP "0.0.0.0"
+#define DEFAULT_SERVER_PORT 1001
 
 #ifdef _WIN32
 DWORD WINAPI handle_client(LPVOID arg) {
@@ -106,6 +107,8 @@ done:
 }
 
 int main(int argc, char* argv[]) {
+	char* server_ip = DEFAULT_SERVER_IP;
+	int server_port = DEFAULT_SERVER_PORT;
     char* ca_cert_path = "/etc/easynet/certs/server-cert.pem";
     char* ca_key_path = "/etc/easynet/certs/server-key.pem";
     
@@ -115,6 +118,10 @@ int main(int argc, char* argv[]) {
             ca_cert_path = argv[++i];
         } else if (strcmp(argv[i], "--ca-key") == 0 && i + 1 < argc) {
             ca_key_path = argv[++i];
+        } else if (strcmp(argv[i], "--server-ip") == 0 && i + 1 < argc) {
+            server_ip = argv[++i];
+        } else if (strcmp(argv[i], "--server-port") == 0 && i + 1 < argc) {
+            server_port = atoi(argv[++i]);
         } else {
 			printf("Unknown argument: %s\n", argv[i]);
 			return -1;
@@ -138,8 +145,8 @@ int main(int argc, char* argv[]) {
 	struct sockaddr_in server_addr;
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
-	server_addr.sin_port = htons(PORT);
+	server_addr.sin_addr.s_addr = inet_addr(server_ip);
+	server_addr.sin_port = htons(server_port);
 
 	// 初始化 wolfSSL 库
 	wolfSSL_Init();
@@ -181,7 +188,7 @@ int main(int argc, char* argv[]) {
 		printf("Listen failed: %d\n", errno);
 		goto done;
 	}
-	printf("Server listening on port %d...\n", PORT);
+	printf("Server listening on %s:%d...\n", server_ip, server_port);
 
 	while (1) {
 		// 接受客户端连接

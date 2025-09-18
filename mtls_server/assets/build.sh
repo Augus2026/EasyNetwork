@@ -1,6 +1,6 @@
 #!/bin/bash
 
-package_path="/root/easynet"
+package_path="/mnt/sda1/easynet"
 config_path="/etc/easynet/"
 bin_path="/bin/easynet/"
 
