@@ -3,8 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'device_info.dart';
-
-String baseUrl = 'http://localhost:1000';
+import '../web.dart';
 
 // 获取设备列表
 Future<List<DeviceInfo>> getDevices() async {

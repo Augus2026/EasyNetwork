@@ -7,7 +7,13 @@ bin_path="/bin/easynet/"
 rm -rf certs
 rm -rf $config_path
 rm -rf $bin_path
+
+/etc/init.d/mtls_server stop 
+/etc/init.d/mtls_server disable      
 rm -f /etc/init.d/mtls_server
+                            
+/etc/init.d/api_server stop 
+/etc/init.d/api_server disable
 rm -f /etc/init.d/api_server
 
 mkdir -p $config_path
