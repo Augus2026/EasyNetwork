@@ -22,7 +22,8 @@ set(EASY_NETWORK_SOURCES
     tls_client.c
     user_settings.h
     user_settings_dtls.h
-    message.h
+    logc/log.h
+    logc/log.c
 )
 
 # 添加库目标
@@ -48,7 +49,7 @@ target_link_libraries(EasyNetwork
 )
 
 # 为 EasyNetwork 目标添加编译参数
-target_compile_options(EasyNetwork PRIVATE /utf-8)
+target_compile_options(EasyNetwork PRIVATE /utf-8 -DLOG_USE_COLOR)
 
 # 修改为控制台子系统
 if(MSVC)
@@ -67,4 +68,23 @@ add_custom_command(TARGET EasyNetwork POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:wolfssl::wolfssl>
         $<TARGET_FILE_DIR:EasyNetwork>
+)
+
+# 添加 peer_tests.c 作为可执行目标
+find_package(cJSON CONFIG REQUIRED)
+add_executable(peer_tests
+    tests/peer_tests.c
+    )
+target_include_directories(peer_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}/
+    cJSON
+)
+target_link_libraries(peer_tests
+    EasyNetwork
+    cjson
+)
+add_custom_command(TARGET peer_tests POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:EasyNetwork>
+        $<TARGET_FILE_DIR:peer_tests>
 )

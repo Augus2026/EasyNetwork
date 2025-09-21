@@ -5,6 +5,8 @@
 #include "wintun_peer.h"
 #include "itf.h"
 
+#include "logc/log.h"
+
 typedef struct server_info_ {
     char* reply_address;
     int reply_port;
@@ -19,12 +21,39 @@ DWORD WINAPI ThreadProc(LPVOID lpParam) {
     return 0;
 }
 
+FILE *fp = NULL;
+
+void log_init() {
+    fp = fopen("log.txt", "a+");
+    if(fp == NULL){
+        printf("create log file failed.\n");
+        return -1;
+    }
+    log_set_level(LOG_TRACE);
+    log_add_fp(fp, LOG_INFO);
+}
+
+void log_clean() {
+    fclose(fp);
+    fp = NULL;
+}
+
+void init_easynet() {
+    log_init();
+}
+
+void clean_easynet() {
+    log_clean();
+}
+
 void set_reply_server(
     const char* reply_address,
     int reply_port) {
-    printf("Setting server:\n");
-    printf("Reply Address: %s\n", reply_address);
-    printf("Reply Port: %d\n", reply_port);
+    init_easynet();
+
+    log_info("Setting server:");
+    log_info("Reply Address: %s", reply_address);
+    log_info("Reply Port: %d", reply_port);
 
     server_info.reply_address = _strdup(reply_address);
     server_info.reply_port = reply_port;
@@ -39,15 +68,15 @@ void join_network(
     const char* domain,
     const char* nameServer,
     const char* searchList) {
-    printf("Joining network:\n");
-    printf("Interface: %s\n", ifname);
-    printf("Description: %s\n", ifdesc);
-    printf("IP: %s\n", ip);
-    printf("Netmask: %s\n", netmask);
-    printf("MTU: %s\n", mtu);
-    printf("Domain: %s\n", domain);
-    printf("Name Server: %s\n", nameServer);
-    printf("Search List: %s\n", searchList);
+    log_info("Joining network:");
+    log_info("Interface: %s", ifname);
+    log_info("Description: %s", ifdesc);
+    log_info("IP: %s", ip);
+    log_info("Netmask: %s", netmask);
+    log_info("MTU: %s", mtu);
+    log_info("Domain: %s", domain);
+    log_info("Name Server: %s", nameServer);
+    log_info("Search List: %s", searchList);
     
     peer = (peer_info_t*)malloc(sizeof(peer_info_t));
     memset(peer, 0, sizeof(peer_info_t));
@@ -83,7 +112,7 @@ void join_network(
 
 void leave_network(
     const char* ifname) {
-    printf("Leaving network on interface\n");
+    log_info("Leaving network on interface: %s", ifname);
     destroy_peer();
 }
 
@@ -115,7 +144,7 @@ void add_route(
     const char* gateway,
     const char* metric)
 {
-    printf("add_route() destination: %s netmask: %s gateway: %s metric: %s \r\n",
+    log_info("add_route() destination: %s netmask: %s gateway: %s metric: %s",
         destination, netmask, gateway, metric);
 
      DWORD dwForwardMetric1 = atoi(metric);
@@ -124,6 +153,6 @@ void add_route(
 
 void clean_route()
 {
-    printf("clean_route() \r\n");
+    log_info("clean_route()");
     CleanRoute(L"EasyNetwork");
 }

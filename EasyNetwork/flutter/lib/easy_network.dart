@@ -191,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _secondsSinceLastUpdate = 0;
   }
 
-  void setReplyServerAddress(Map<String, dynamic> result) async {
+  Future<void> setReplyServerAddress(Map<String, dynamic> result) async {
     final servers = result['server_info'];
     var replyAddress = servers['reply_address'].toString();
     try {
@@ -209,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await ffi.setReplyServer(replyAddress, replyPort);
   }
 
-  void startNetwork(Map<String, dynamic> result) async {
+  Future<void> startNetwork(Map<String, dynamic> result) async {
     final member_info = result['member_info'];
     final dns_info = result['dns_info'];
 
@@ -277,9 +277,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         _memberUuid = result['member_info']['id'].toString();
                         print('Joined network successfully: $result');
                         // 设置服务器
-                        setReplyServerAddress(result);
+                        await setReplyServerAddress(result);
                         // 启动网络
-                        startNetwork(result);
+                        await startNetwork(result);
                         // 更新路由
                         Future.delayed(const Duration(seconds: 5), () {
                           updateRoute(result);

@@ -6,8 +6,8 @@ cd vcpkg
 ./bootstrap-vcpkg.sh
 ln -s /root/EA/vcpkg/vcpkg /usr/bin
 
-vcpkg install uthash kcp wolfssl
-vcpkg export uthash kcp wolfssl --raw --output-dir=temp
+vcpkg install uthash kcp wolfssl cjson
+vcpkg export uthash kcp wolfssl cjson --raw --output-dir=temp
 ```
 
 ### cmake安装

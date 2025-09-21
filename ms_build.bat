@@ -16,14 +16,14 @@ if /i "%~1"=="lib" (
     echo Building EasyNetwork library...
 
     pushd .\EasyNetwork\libEasyNetwork
-    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250918-001900/scripts/buildsystems/vcpkg.cmake
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250921-180547/scripts/buildsystems/vcpkg.cmake
     cmake --build ./build --config Release
     popd
 ) else if /i "%~1"=="flutter" (
     echo Building EasyNetwork library...
 
     pushd .\EasyNetwork\flutter
-    flutter pub run ffigen --config ffigen.yaml
+    @REM flutter pub run ffigen --config ffigen.yaml
     flutter pub get
     flutter build windows --release
     popd
@@ -38,7 +38,7 @@ if /i "%~1"=="lib" (
     echo Building mTLS server...
 
     pushd .\mtls_server
-    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250918-001900/scripts/buildsystems/vcpkg.cmake
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250921-180547/scripts/buildsystems/vcpkg.cmake
     cmake --build ./build --config Release
     popd
 ) else (

@@ -1,0 +1,38 @@
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:54: Setting server:
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:55: Reply Address: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:56: Reply Port: 0
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:71: Joining network:
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:72: Interface: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:73: Description: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:74: IP: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:75: Netmask: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:76: MTU: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:77: Domain: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:78: Name Server: (null)
+2025-09-21 18:18:16 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:79: Search List: (null)
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:54: Setting server:
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:55: Reply Address: 192.168.6.1
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:56: Reply Port: 1001
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:71: Joining network:
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:72: Interface: eth0
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:73: Description: EasyNetwork
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:74: IP: 10.10.10.11
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:75: Netmask: 255.255.255.0
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:76: MTU: 1400
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:77: Domain: default.easy_network.com
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:78: Name Server: 114.114.114.114,8.8.8.8
+2025-09-21 18:18:52 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:79: Search List: easy_network.com
+2025-09-21 18:18:55 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:148: add_route() destination: 10.10.10.0 netmask: 255.255.255.0 gateway: 10.10.10.11 metric: 100
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:54: Setting server:
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:55: Reply Address: 192.168.6.1
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:56: Reply Port: 1001
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:71: Joining network:
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:72: Interface: eth0
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:73: Description: EasyNetwork
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:74: IP: 10.10.10.11
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:75: Netmask: 255.255.255.0
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:76: MTU: 1400
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:77: Domain: default.easy_network.com
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:78: Name Server: 114.114.114.114,8.8.8.8
+2025-09-21 18:21:02 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:79: Search List: easy_network.com
+2025-09-21 18:21:05 INFO  C:\Users\shiguoliang\Desktop\EasyNetwork\EasyNetwork\libEasyNetwork\easynet_ffi.c:148: add_route() destination: 10.10.10.0 netmask: 255.255.255.0 gateway: 10.10.10.11 metric: 100

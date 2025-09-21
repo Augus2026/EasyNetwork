@@ -1,0 +1,22 @@
+{
+    "srv": {
+        "server_ip": "192.168.6.1",
+        "server_port": 1001
+    },
+    "itf": {
+        "ifname": "eth0",
+        "ifdesc": "EasyNetwork",
+        "ip": "10.10.10.11",
+        "netmask": "255.255.255.0",
+        "mtu": "1400",
+        "domain": "default.easy_network.com",
+        "nameServer": "114.114.114.114,8.8.8.8",
+        "searchList": "easy_network.com",
+        "route": {
+            "destination": "10.10.10.0",
+            "netmask": "255.255.255.0",
+            "gateway": "10.10.10.11",
+            "metric": "100"
+        }
+    }
+}
