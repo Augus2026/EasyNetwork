@@ -1,6 +1,10 @@
 #include "tls_client.h"
 #include "hdr.h"
 
+#include <shlwapi.h>
+
+#pragma comment(lib, "shlwapi.lib")
+
 void print_hex(const char* data, int size) {
 	printf("data len = %d hex data: ", size);
 	for (int i = 0; i < size; i++) {
@@ -29,8 +33,15 @@ void MY_SSL_Init(peer_info_t* peer)
 		return;
 	}
 
+	char path[MAX_PATH] = "";
+	char exePath[MAX_PATH] = "";
+	GetModuleFileNameA(NULL, exePath, MAX_PATH);
+	PathRemoveFileSpecA(exePath);
+	snprintf(path, sizeof(path), "%s\\ca-cert.pem", exePath);
+	printf("ca cert path: %s\n", path);
+
 	// 加载 CA 证书以验证服务器证书
-	if (wolfSSL_CTX_load_verify_locations(ctx, "ca-cert.pem", NULL) != SSL_SUCCESS) {
+	if (wolfSSL_CTX_load_verify_locations(ctx, path, NULL) != SSL_SUCCESS) {
 		printf("Error loading CA certificate\n");
 		wolfSSL_CTX_free(ctx);
 		WSACleanup();

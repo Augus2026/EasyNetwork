@@ -17,6 +17,7 @@ if /i "%~1"=="lib" (
 
     pushd .\EasyNetwork\libEasyNetwork
     cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250921-180547/scripts/buildsystems/vcpkg.cmake
+    cmake --build ./build --config Debug
     cmake --build ./build --config Release
     popd
 ) else if /i "%~1"=="flutter" (

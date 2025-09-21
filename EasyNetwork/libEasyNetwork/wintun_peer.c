@@ -281,7 +281,9 @@ int build_peer(peer_info_t* peer)
     peer->Session = Session;
     Log(WINTUN_LOG_INFO, L"Launching threads and mangling packets...");
 
+    Log(WINTUN_LOG_INFO, L"init tunnel done...");
     init_tunnel(peer);
+    printf("init tunnel done \r\n");
 
     int log_n = 0;
     while(1) {
