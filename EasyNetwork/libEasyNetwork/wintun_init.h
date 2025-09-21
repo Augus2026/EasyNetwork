@@ -47,4 +47,8 @@ LogLastError(_In_z_ const WCHAR *Prefix);
 void
 Log(_In_ WINTUN_LOGGER_LEVEL Level, _In_z_ const WCHAR *Format, ...);
 
+#define LOG_INFO(Format, ...) Log(WINTUN_LOG_INFO, Format, ##__VA_ARGS__)
+#define LOG_WARN(Format, ...) Log(WINTUN_LOG_WARN, Format, ##__VA_ARGS__)
+#define LOG_ERR(Format, ...) Log(WINTUN_LOG_ERR, Format, ##__VA_ARGS__)
+
 #endif // WINTUN_INIT_H

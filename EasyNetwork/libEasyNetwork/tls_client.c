@@ -13,19 +13,18 @@ void print_hex(const char* data, int size) {
 	printf("\n");	
 }
 
-void MY_SSL_Init(peer_info_t* peer)
-{
-	// 初始化 Winsock
+void ssl_init(peer_info_t* peer) {
+	// init Winsock
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 		printf("WSAStartup failed\n");
 		return;
 	}
 
-	// 初始化 wolfSSL 库
+	// init wolfSSL library
 	wolfSSL_Init();
 
-	// 创建 SSL 上下文
+	// create wolfSSL context
 	WOLFSSL_CTX* ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
 	if (ctx == NULL) {
 		printf("Error creating SSL context\n");
@@ -40,7 +39,7 @@ void MY_SSL_Init(peer_info_t* peer)
 	snprintf(path, sizeof(path), "%s\\ca-cert.pem", exePath);
 	printf("ca cert path: %s\n", path);
 
-	// 加载 CA 证书以验证服务器证书
+	// load CA certificate to verify server certificate
 	if (wolfSSL_CTX_load_verify_locations(ctx, path, NULL) != SSL_SUCCESS) {
 		printf("Error loading CA certificate\n");
 		wolfSSL_CTX_free(ctx);
@@ -48,7 +47,7 @@ void MY_SSL_Init(peer_info_t* peer)
 		return;
 	}
 
-	// 创建 TCP 套接字
+	// create tcp socket
 	SOCKET sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sockfd == INVALID_SOCKET) {
 		printf("Socket creation failed: %d\n", WSAGetLastError());
@@ -57,7 +56,7 @@ void MY_SSL_Init(peer_info_t* peer)
 		return;
 	}
 
-	// 连接到服务器
+	// connect to server
 	struct sockaddr_in server_addr;
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
@@ -73,7 +72,7 @@ void MY_SSL_Init(peer_info_t* peer)
 	}
 	printf("Connected to server\n");
 
-	// 创建 SSL 对象
+	// create wolfSSL object
 	WOLFSSL* ssl = wolfSSL_new(ctx);
 	if (ssl == NULL) {
 		printf("Error creating SSL object\n");
@@ -82,10 +81,9 @@ void MY_SSL_Init(peer_info_t* peer)
 		WSACleanup();
 		return;
 	}
-	// 将 SSL 对象与套接字关联
 	wolfSSL_set_fd(ssl, (int)sockfd);
 
-	// 发起 TLS/SSL 握手
+	// connect wolfSSL
 	if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
 		int err = wolfSSL_get_error(ssl, 0);
 		printf("SSL connect failed, error: %d\n", err);
@@ -96,22 +94,20 @@ void MY_SSL_Init(peer_info_t* peer)
 		return;
 	}
 	peer->ssl = ssl;
+
 	printf("SSL connection established\n");
 	return;
 }
 
-void MY_SSL_Reconnect(peer_info_t* peer)
-{
-	MY_SSL_Cleanup(peer);
-	MY_SSL_Init(peer);
+void ssl_reconnect(peer_info_t* peer) {
+	ssl_cleanup(peer);
+	ssl_init(peer);
 	return;
 }
 
-// SSL 清理
-void MY_SSL_Cleanup(peer_info_t* peer)
-{
+void ssl_cleanup(peer_info_t* peer) {
 	if (peer->ssl) {
-		printf("SSL connection already exists, reconnecting...\n");
+		printf("wolfSSL connection already exists, reconnecting...\n");
 		WOLFSSL_CTX* ctx = wolfSSL_get_SSL_CTX(peer->ssl);
 		int sockfd = wolfSSL_get_fd(peer->ssl);
 		wolfSSL_free(peer->ssl);
@@ -122,7 +118,7 @@ void MY_SSL_Cleanup(peer_info_t* peer)
 	}
 }
 
-int read_peer_data(peer_info_t* peer, char* data, int size) {
+int ssl_read_data(peer_info_t* peer, char* data, int size) {
 	int received = -1;
 	int i = 0;
 	while (i < size) {
@@ -141,4 +137,25 @@ int read_peer_data(peer_info_t* peer, char* data, int size) {
 		}
 	}
 	return received;
+}
+
+int ssl_write_data(peer_info_t* peer, char* data, int size) {
+	int sent = -1;
+	int i = 0;
+	while (i < size) {
+		int sz = size - i;
+		sent = wolfSSL_write(peer->ssl, &data[i], sz);
+		if (sent > 0) {
+			i += sent;
+		} else {
+			int err = wolfSSL_get_error(peer->ssl, sent);
+			if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+				continue;
+			}
+			printf("Connection closed by server, error: %d\n", err);
+			sent = -1;
+			break;
+		}
+	}
+	return sent;
 }

@@ -28,13 +28,15 @@ typedef struct peer_info_ {
     WOLFSSL* ssl; // TLS连接
 } peer_info_t;
 
-// SSL 连接
-void MY_SSL_Init(peer_info_t* peer);
-// SSL 重连
-void MY_SSL_Reconnect(peer_info_t* peer);
-// SSL 清理
-void MY_SSL_Cleanup(peer_info_t* peer);
-// read data from ssl
-int read_peer_data(peer_info_t* peer, char* data, int size);
+// ssl init
+void ssl_init(peer_info_t* peer);
+// ssl reconnect
+void ssl_reconnect(peer_info_t* peer);
+// ssl cleanup
+void ssl_cleanup(peer_info_t* peer);
+// read data
+int ssl_read_data(peer_info_t* peer, char* data, int size);
+// write data
+int ssl_write_data(peer_info_t* peer, char* data, int size);
 
 #endif // TLS_CLIENT_H_

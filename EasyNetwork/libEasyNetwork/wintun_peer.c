@@ -112,10 +112,9 @@ ReceivePackets(_Inout_ LPVOID lpParam)
             }
             message->head.size = len;
             memcpy(message->data, buffer, len);
-            int ret = wolfSSL_write(peer->ssl, message, sizeof(message_head_t) + len);
-            if (ret <= 0) {
-                printf("Send data failed, error: %d\n", wolfSSL_get_error(peer->ssl, ret));               
-
+            int ret = ssl_write_data(peer, message, sizeof(message_head_t) + len);
+            if (ret < 0) {
+                printf("Send data failed, error: %d\n", wolfSSL_get_error(peer->ssl, ret));
                 free(message);
                 WintunReleaseReceivePacket(Session, Packet);
                 return -1;
@@ -136,7 +135,7 @@ ReceivePackets(_Inout_ LPVOID lpParam)
                         // printf("Wintun read event triggered\n");
                     } else if (index == 1) {
                         // printf("QuitEvent triggered\n");
-                        MY_SSL_Cleanup(peer);
+                        ssl_cleanup(peer);
                     }
                     continue;
                 }
@@ -164,14 +163,14 @@ SendPackets(_Inout_ LPVOID lpParam)
     while (!HaveQuit) {
         int retval;
         // 读取数据头
-        retval = read_peer_data(peer, (char*)message, sizeof(message_head_t));
+        retval = ssl_read_data(peer, (char*)message, sizeof(message_head_t));
         if(retval < 0) {
             printf("read package header error.\r\n");
             break;
         }
         // 读取数据
         message = (message_head_t*)realloc(message, sizeof(message_head_t) + message->head.size);
-        retval = read_peer_data(peer, message->data, message->head.size);
+        retval = ssl_read_data(peer, message->data, message->head.size);
         if(retval < 0) {
             printf("read package data error.\r\n");
             break;
@@ -236,7 +235,7 @@ void init_tunnel(peer_info_t* peer) {
     if (SearchList) free(SearchList);
 
     if (!dnsResult) {
-        wprintf(L"Failed to set DNS\n");
+        LOG_ERR(L"Failed to set DNS");
     }
 }
 
@@ -281,9 +280,7 @@ int build_peer(peer_info_t* peer)
     peer->Session = Session;
     Log(WINTUN_LOG_INFO, L"Launching threads and mangling packets...");
 
-    Log(WINTUN_LOG_INFO, L"init tunnel done...");
     init_tunnel(peer);
-    printf("init tunnel done \r\n");
 
     int log_n = 0;
     while(1) {
@@ -291,16 +288,15 @@ int build_peer(peer_info_t* peer)
         ResetEvent(QuitEvent);
 
         if(peer->ssl == NULL) {
-            MY_SSL_Init(peer);
+            ssl_init(peer);
             if(peer->ssl == NULL) {
-                printf("MY_SSL_Init failed \r\n");
+                LOG_ERR(L"ssl_init failed");
                 goto done;
             }
         } else {
-            MY_SSL_Reconnect(peer);
-            if (peer->ssl == NULL)
-            {
-                printf("MY_SSL_Reconnect failed \r\n");
+            ssl_reconnect(peer);
+            if (peer->ssl == NULL) {
+                LOG_ERR(L"ssl_reconnect failed");
                 goto done;
             }
         }
@@ -326,19 +322,19 @@ int build_peer(peer_info_t* peer)
         CloseHandle(Workers[0]);
 
         if(CloseAppQuit) {
-            printf("CloseAppQuit\r\n");
+            LOG_INFO(L"CloseAppQuit");
             break;
         }
 
 done:
         int secs = 0x01 << log_n;
-        printf("Sleep %ds.. \r\n", secs);
+        LOG_INFO(L"Sleep %ds..", secs);
         Sleep(secs * 1000);
         ++log_n;
         if(log_n > 10) {
             log_n = 10;
         }
-        printf("Reconnecting...\r\n");
+        LOG_INFO(L"Reconnecting...");
     }
     LastError = ERROR_SUCCESS;
 
