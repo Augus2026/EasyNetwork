@@ -149,9 +149,9 @@ jobs:
           cd vcpkg
           .\bootstrap-vcpkg.bat
           .\vcpkg integrate install
-          .\vcpkg install uthash kcp wolfssl
+          .\vcpkg install uthash cjson wolfssl
 
-          $EXPORT_OUTPUT = .\vcpkg export uthash kcp wolfssl --raw --output=temp
+          $EXPORT_OUTPUT = .\vcpkg export uthash cjson wolfssl --raw --output=temp
           Write-Output "======EXPORT_OUTPUT=$EXPORT_OUTPUT======"
           $TOOLCHAIN_PATH = $EXPORT_OUTPUT | Select-String -Pattern "CMAKE_TOOLCHAIN_FILE=([^\s]+)" | ForEach-Object { $_.Matches.Groups[1].Value }
           Write-Output "Extracted toolchain path: $TOOLCHAIN_PATH"
