@@ -5,11 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <winsock2.h>
+#include "wintun_peer.h"
 
 #define WOLFSSL_USER_SETTINGS
 #include "wolfssl/ssl.h"
-#include "ikcp.h"
-#include "wintun_peer.h"
 
 typedef struct peer_info_ {
     char* server_ip; // 服务器IP地址
@@ -25,29 +24,9 @@ typedef struct peer_info_ {
     char* name_server; // 域名服务器
     char* search_list; // 搜索列表
 
-	// wintun
 	WINTUN_SESSION_HANDLE Session; // wintun会话句柄
-
-	// tls
     WOLFSSL* ssl; // TLS连接
-
-	// kcp
-	SOCKET sockfd;
-	ikcpcb *kcp;
-    struct sockaddr_in remote_addr; // 服务器地址
-    int remote_addr_len; // 服务器地址长度
-
-    // 发送队列
-    CRITICAL_SECTION snd_queue_cs;
-    iqueue_head snd_queue;
-    // 接收队列
-    CRITICAL_SECTION rcv_queue_cs;
-    iqueue_head rcv_queue;
-
-	unsigned int code;
 } peer_info_t;
-
-int read_peer_data(WOLFSSL* ssl, char* data, int size);
 
 // SSL 连接
 void MY_SSL_Init(peer_info_t* peer);
@@ -55,5 +34,7 @@ void MY_SSL_Init(peer_info_t* peer);
 void MY_SSL_Reconnect(peer_info_t* peer);
 // SSL 清理
 void MY_SSL_Cleanup(peer_info_t* peer);
+// read data from ssl
+int read_peer_data(peer_info_t* peer, char* data, int size);
 
 #endif // TLS_CLIENT_H_

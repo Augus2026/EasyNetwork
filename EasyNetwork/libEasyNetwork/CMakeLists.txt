@@ -8,16 +8,10 @@ set(WINTUN_DIR "${CMAKE_SOURCE_DIR}/wintun")
 include_directories(EasyNetwork ${WINTUN_DIR}/include)
 
 find_package(wolfssl REQUIRED)
-find_package(kcp REQUIRED)
-
-# 添加manifest文件
-set(MANIFEST_FILE "${CMAKE_SOURCE_DIR}/app.manifest")
-# 添加version.rc文件
-set(VERSION_RC "${CMAKE_SOURCE_DIR}/app.rc")
 
 set(EASY_NETWORK_SOURCES
-    easy_network_ffi.h
-    easy_network_ffi.c
+    easynet_ffi.h
+    easynet_ffi.c
     itf.h
     itf.c
     wintun_peer.h
@@ -28,13 +22,7 @@ set(EASY_NETWORK_SOURCES
     tls_client.c
     user_settings.h
     user_settings_dtls.h
-
-    kcp_client.h
-    kcp_client.c
-    udp_client.h
-    udp_client.c
     message.h
-    kcp_utils.h
 )
 
 # 添加库目标
@@ -48,14 +36,11 @@ add_library(EasyNetwork SHARED
 set_target_properties(EasyNetwork PROPERTIES
     OUTPUT_NAME "EasyNetwork"
     PREFIX "lib"
-    LINK_DEPENDS ${MANIFEST_FILE}
-    LINK_FLAGS "/MANIFEST:NO /MANIFESTINPUT:${MANIFEST_FILE}"
 )
 
 # 链接库
 target_link_libraries(EasyNetwork
     wolfssl::wolfssl
-    kcp::kcp
     iphlpapi
     ws2_32
     ntdll
@@ -82,22 +67,4 @@ add_custom_command(TARGET EasyNetwork POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:wolfssl::wolfssl>
         $<TARGET_FILE_DIR:EasyNetwork>
-)
-
-# 添加 peera.c 作为可执行目标
-add_executable(peera peera.c)
-target_link_libraries(peera EasyNetwork)
-add_custom_command(TARGET peera POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:EasyNetwork>
-        $<TARGET_FILE_DIR:peera>
-)
-
-# 添加 peerb.c 作为可执行目标
-add_executable(peerb peerb.c)
-target_link_libraries(peerb EasyNetwork)
-add_custom_command(TARGET peerb POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:EasyNetwork>
-        $<TARGET_FILE_DIR:peerb>
 )

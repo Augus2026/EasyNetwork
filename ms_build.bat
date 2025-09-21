@@ -4,22 +4,22 @@ setlocal
 :: Check if project parameter is provided
 if "%~1"=="" (
     echo Please specify the project to build:
-    echo   - flutter: Build Flutter application
     echo   - lib: Build EasyNetwork library
+    echo   - flutter: Build Flutter application
     echo   - api_server: Build API server
     echo   - mtls_server: Build mTLS server
     goto :eof
 )
 
 :: Select build project based on parameter
-if /i "%~1"=="flutter" (
-    echo Building Flutter application...
+if /i "%~1"=="lib" (
+    echo Building EasyNetwork library...
 
     pushd .\EasyNetwork\libEasyNetwork
-    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250831-140452/scripts/buildsystems/vcpkg.cmake
+    cmake -S ./ -B ./build -DCMAKE_TOOLCHAIN_FILE=C:/ws/dev/vcpkg/temp/vcpkg-export-20250918-001900/scripts/buildsystems/vcpkg.cmake
     cmake --build ./build --config Release
     popd
-) else if /i "%~1"=="lib" (
+) else if /i "%~1"=="flutter" (
     echo Building EasyNetwork library...
 
     pushd .\EasyNetwork\flutter

@@ -1,5 +1,5 @@
-#ifndef EASY_NETWORK_FFI_H
-#define EASY_NETWORK_FFI_H
+#ifndef __EASYNET_FFI_H__
+#define __EASYNET_FFI_H__
 
 #ifdef _WIN32
 #define EXPORT __declspec(dllexport)
@@ -45,4 +45,4 @@ EXPORT void clean_route();
 }
 #endif
 
-#endif // EASY_NETWORK_FFI_H
+#endif // __EASYNET_FFI_H__

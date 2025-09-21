@@ -9,27 +9,6 @@ void print_hex(const char* data, int size) {
 	printf("\n");	
 }
 
-int read_peer_data(WOLFSSL* ssl, char* data, int size) {
-	int received = -1;
-	int i = 0;
-	while (i < size) {
-		int sz = size - i;
-		received = wolfSSL_read(ssl, &data[i], sz);
-		if (received > 0) {
-			i += received;
-		} else {
-			int err = wolfSSL_get_error(ssl, received);
-			if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
-				continue;
-			}
-			printf("Connection closed by server, error: %d\n", err);
-			received = -1;
-			break;
-		}
-	}
-	return received;
-}
-
 void MY_SSL_Init(peer_info_t* peer)
 {
 	// 初始化 Winsock
@@ -130,4 +109,25 @@ void MY_SSL_Cleanup(peer_info_t* peer)
 		WSACleanup();
 		peer->ssl = NULL;
 	}
+}
+
+int read_peer_data(peer_info_t* peer, char* data, int size) {
+	int received = -1;
+	int i = 0;
+	while (i < size) {
+		int sz = size - i;
+		received = wolfSSL_read(peer->ssl, &data[i], sz);
+		if (received > 0) {
+			i += received;
+		} else {
+			int err = wolfSSL_get_error(peer->ssl, received);
+			if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_WRITE) {
+				continue;
+			}
+			printf("Connection closed by server, error: %d\n", err);
+			received = -1;
+			break;
+		}
+	}
+	return received;
 }

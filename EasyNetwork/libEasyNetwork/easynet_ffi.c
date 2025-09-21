@@ -1,4 +1,4 @@
-#include "easy_network_ffi.h"
+#include "easynet_ffi.h"
 #include <stdio.h>
 #include <string.h>
 
