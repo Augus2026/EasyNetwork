@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.10)
 project(mtls_server C)
 
@@ -8,6 +7,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 find_package(wolfssl REQUIRED)
 
 set(CMAKE_EXE_LINKER_FLAGS "-static")
+
+include_directories(log.c/src)
 
 if(WIN32)
     set(UTHASH_INCLUDE_DIR "${VCPKG_ROOT}/installed/x64-windows/include")
@@ -27,7 +28,13 @@ add_executable(mtls_server
     message.h
     user_settings.h
     user_settings_dtls.h
+    log.c/src/log.c
     )
+
+target_compile_definitions(mtls_server PRIVATE
+    LOG_USE_COLOR
+    WOLFSSL_USER_SETTINGS
+)
 
 
 if(WIN32)

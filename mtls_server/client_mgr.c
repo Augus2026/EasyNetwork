@@ -1,11 +1,12 @@
 #include "client_mgr.h"
+#include "log.h"
 
 client_info_t* clients = NULL;
 
 void print_clients() {
     FILE *fp = fopen("clients.txt", "w");
     if (!fp) {
-        printf("Failed to open clients.txt\n");
+        log_error("Failed to open clients.txt");
         return;
     }
 
@@ -33,11 +34,13 @@ void print_clients() {
     fprintf(fp, "=========================================================\r\n");
     
     fclose(fp);
+    log_info("Client list saved to clients.txt");
 }
 
 void add_client(client_info_t* client)
 {
     HASH_ADD_STR(clients, key, client);
+    log_debug("Client added: %s", client->key);
 }
 
 client_info_t* find_client(const char* key)
@@ -64,4 +67,5 @@ void delete_client(client_info_t* client)
     HASH_DEL(clients, client);
     free(client->key);
     free(client);
+    log_debug("Client deleted");
 }

@@ -5,6 +5,7 @@
 #include "uthash.h"
 #include "client_mgr.h"
 #include "stage.h"
+#include "log.h"
 
 #ifdef _WIN32
 #include <winsock2.h>
@@ -35,7 +36,7 @@ void* handle_client(void* arg) {
     // 创建 SSL 对象
 	WOLFSSL* ssl = wolfSSL_new(ctx);
 	if (ssl == NULL) {
-		printf("Error creating SSL object\n");
+		log_error("Error creating SSL object");
 		goto done;
 	}
 	// 将 SSL 对象与客户端套接字关联
@@ -50,42 +51,42 @@ void* handle_client(void* arg) {
 		message_head_t* msg = (message_head_t*)malloc(msglen);
 		len = read_peer_data(ssl, (char*)msg, msglen);
 		if(len < 0) {
-			printf("read package header error.\r\n");
+			log_error("read package header error");
 			free(msg);
 			break;
 		}
 		msglen += msg->head.size;
 
 		if(msg->head.magic != 0x1234) {
-			printf("magic error. magic = 0x%x \r\n", msg->head.magic);
+			log_warn("magic error. magic = 0x%x", msg->head.magic);
 			free(msg);
 			break;
 		}
 
 		switch (msg->head.msgtype) {
 		case REGISTER_PEER: {
-			// printf("register peer \r\n");
+			log_debug("register peer");
 			handle_register_peer(client, msg, msglen);
 			break;
 		}
 		case TRANSPORT_DATA: {
-			// printf("transport data \r\n");
+			log_debug("transport data");
 			msg = (message_head_t*)realloc(msg, msglen);
 			len = read_peer_data(ssl, (char*)msg->data, msg->head.size);
 			if(len < 0) {
-				printf("read package data error. \r\n");
+				log_error("read package data error");
 				break;
 			}
 			handle_transport_data(client, msg, msglen);
 			break;
 		}
 		case PING: {
-			// printf("ping \r\n");
+			log_debug("ping");
 			handle_ping(client, msg, msglen);
 			break;
 		}
 		default:
-			// printf("msgtype error. msgtype = %d \r\n", msg->head.msgtype);
+			log_warn("msgtype error. msgtype = %d", msg->head.msgtype);
 			break;
 		}
 		free(msg);
@@ -102,11 +103,21 @@ done:
     }
 
 	delete_client(client);
-	printf("Client disconnected!\n");
+	log_info("Client disconnected");
 	return 0;
 }
 
 int main(int argc, char* argv[]) {
+	FILE* fp = fopen("mtls_server.log", "w");
+    if (!fp) {
+        log_error("Failed to open mtls_server.log");
+        return -1;
+    }
+    log_set_level(LOG_INFO);
+	log_add_fp(fp, LOG_INFO);
+
+    log_info("Starting mTLS server...");
+    
 	char* server_ip = DEFAULT_SERVER_IP;
 	int server_port = DEFAULT_SERVER_PORT;
     char* ca_cert_path = "/etc/easynet/certs/server-cert.pem";
@@ -123,7 +134,7 @@ int main(int argc, char* argv[]) {
         } else if (strcmp(argv[i], "--server-port") == 0 && i + 1 < argc) {
             server_port = atoi(argv[++i]);
         } else {
-			printf("Unknown argument: %s\n", argv[i]);
+			log_error("Unknown argument: %s", argv[i]);
 			return -1;
 		}
     }
@@ -131,7 +142,7 @@ int main(int argc, char* argv[]) {
 #ifdef _WIN32
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-		printf("WSAStartup failed\n");
+		log_error("WSAStartup failed");
 		return -1;
 	}
 	SOCKET sockfd = INVALID_SOCKET;
@@ -154,41 +165,41 @@ int main(int argc, char* argv[]) {
 	// 创建 SSL 上下文
 	WOLFSSL_CTX* ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
 	if (ctx == NULL) {
-		printf("Error creating SSL context\n");
+		log_error("Error creating SSL context");
 		goto done;
 	}
 
 	// 加载服务器证书
 	if (wolfSSL_CTX_use_certificate_file(ctx, ca_cert_path, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-		printf("Error loading server certificate\n");
+		log_error("Error loading server certificate from %s", ca_cert_path);
 		goto done;
 	}
 
 	// 加载服务器私钥
 	if (wolfSSL_CTX_use_PrivateKey_file(ctx, ca_key_path, SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-		printf("Error loading server private key\n");
+		log_error("Error loading server private key from %s", ca_key_path);
 		goto done;
 	}
 
 	// 创建 TCP 套接字
 	sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sockfd < 0) {
-		printf("Socket creation failed: %d\n", errno);
+		log_error("Socket creation failed: %d", errno);
 		goto done;
 	}
 
 	// 绑定套接字
 	if (bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-		printf("Bind failed: %d\n", errno);
+		log_error("Bind failed: %d", errno);
 		goto done;
 	}
 
 	// 监听连接
 	if (listen(sockfd, 1) < 0) {
-		printf("Listen failed: %d\n", errno);
+		log_error("Listen failed: %d", errno);
 		goto done;
 	}
-	printf("Server listening on %s:%d...\n", server_ip, server_port);
+	log_info("Server listening on %s:%d", server_ip, server_port);
 
 	while (1) {
 		// 接受客户端连接
@@ -196,10 +207,10 @@ int main(int argc, char* argv[]) {
 		int client_len = sizeof(client_addr);
 		int clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_len);
 		if (clientfd < 0) {
-			printf("Accept failed: %d\n", errno);
+			log_error("Accept failed: %d", errno);
 			goto done;
 		}
-		printf("Client connected\n");
+		log_info("Client connected");
 
         // 创建客户端信息结构体
         client_info_t* client = malloc(sizeof(client_info_t));
@@ -220,7 +231,7 @@ int main(int argc, char* argv[]) {
         // 为每个客户端创建新线程
         HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)handle_client, (LPVOID)client, 0, NULL);
         if (thread == NULL) {
-            printf("CreateThread failed: %d\n", GetLastError());
+            log_error("CreateThread failed: %d", GetLastError());
             CloseSocket(clientfd);
             continue;
         }
@@ -229,7 +240,7 @@ int main(int argc, char* argv[]) {
 		// 为每个客户端创建新线程
         pthread_t thread;
         if (pthread_create(&thread, NULL, handle_client, (void*)client) != 0) {
-            printf("pthread_create failed\n");
+            log_error("pthread_create failed");
             CloseSocket(clientfd);
             continue;
         }
@@ -248,5 +259,7 @@ done:
 	WSACleanup();
 #endif
 
+    log_info("Server shutdown");
+	fclose(fp);
     return 0;
 }
