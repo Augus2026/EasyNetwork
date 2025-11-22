@@ -1,10 +1,6 @@
 #ifndef __STAGE_H__
 #define __STAGE_H__
 
-#ifdef _WIN32
-#define WOLFSSL_USER_SETTINGS
-#endif
-
 #include <wolfssl/ssl.h>
 
 #include "client_mgr.h"
