@@ -2,19 +2,19 @@
 #define ITF_H
 
 // 设置ip
-BOOL SetInterfaceAddress(const wchar_t *interfaceAlias, const char *tunnel_ip, int tunnel_mask);
+BOOL SetInterfaceAddress(const char *interfaceAlias, const char *tunnel_ip, int tunnel_mask);
 // 设置网卡MTU
-BOOL SetInterfaceMTU(const wchar_t* interfaceAlias, DWORD mtu);
+BOOL SetInterfaceMTU(const char* interfaceAlias, DWORD mtu);
 // 设置接口DNS
-BOOL SetInterfaceDNS(const wchar_t *interfaceAlias, wchar_t *Domain, wchar_t *NameServer, wchar_t* SearchList);
+BOOL SetInterfaceDNS(const char* interfaceAlias, char *Domain, char *NameServer, char* SearchList);
 
 // 添加路由
-BOOL AddRoute(const wchar_t *interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway, DWORD dwForwardMetric1);
+BOOL AddRoute(const char* interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway, DWORD dwForwardMetric1);
 // 删除路由
-BOOL DeleteRoute(const wchar_t *interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway);
+BOOL DeleteRoute(const char *interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway);
 // 修改路由
-BOOL ModifyRoute(const wchar_t* interfaceAlias, const char* destNetwork, const char* netmask, const char* newGateway);
+BOOL ModifyRoute(const char* interfaceAlias, const char* destNetwork, const char* netmask, const char* newGateway);
 // 清理路由
-BOOL CleanRoute(const wchar_t* interfaceAlias);
+BOOL CleanRoute(const char* interfaceAlias);
 
-#endif
+#endif // ITF_H

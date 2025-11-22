@@ -16,33 +16,24 @@
 #include "hdr.h"
 #include "itf.h"
 
-NET_IFINDEX GetInterfaceIndex(const wchar_t *interfaceAlias, PMIB_IF_ROW2 row)
-{
-    NET_IFINDEX ifIndex = 0;
+NET_IFINDEX GetInterfaceIndex(const wchar_t *interfaceAlias, PMIB_IF_ROW2 row) {
+    NET_IFINDEX ifIndex = NET_IFINDEX_UNSPECIFIED;
     PMIB_IF_TABLE2 pIfTable = NULL;
 
     DWORD dwResult = GetIfTable2(&pIfTable);
-    if (dwResult != NO_ERROR)
-    {
+    if (dwResult != NO_ERROR) {
         printf("GetIfTable2 failed with error: %d\n", dwResult);
         goto done;
     }
-    for (DWORD i = 0; i < pIfTable->NumEntries; i++)
-    {
-        // // 将宽字符转换为UTF-8
-        // char aliasUtf8[256];
-        // WideCharToMultiByte(CP_ACP, 0, pIfTable->Table[i].Alias, -1, aliasUtf8, sizeof(aliasUtf8), NULL, NULL);
-        // // 使用printf打印UTF-8字符串
-        // printf("InterfaceIndex %d InterfaceAlias %s \r\n", pIfTable->Table[i].InterfaceIndex, aliasUtf8);
 
+    for (DWORD i = 0; i < pIfTable->NumEntries; i++) {
         if (lstrcmpW(interfaceAlias, pIfTable->Table[i].Alias) == 0)
         {
-            if (row != NULL)
-            {
+            if (row != NULL) {
                 memcpy(row, &pIfTable->Table[i], sizeof(MIB_IF_ROW2));
             }
             ifIndex = pIfTable->Table[i].InterfaceIndex;
-            //break;
+            break;
         }
     }
     FreeMibTable(pIfTable);
@@ -51,8 +42,7 @@ done:
     return ifIndex;
 }
 
-VOID PrintIpForwardRow(PMIB_IPFORWARDROW pRow)
-{
+VOID PrintIpForwardRow(PMIB_IPFORWARDROW pRow) {
     struct in_addr addrDest, addrMask, addrNextHop;
     addrDest.s_addr = pRow->dwForwardDest;
     addrMask.s_addr = pRow->dwForwardMask;
@@ -90,22 +80,27 @@ BOOL _SetInterfaceAddress(NET_IFINDEX ifIndex, DWORD dwForwardDest, UINT8 linkPr
     return TRUE;
 }
 
-BOOL SetInterfaceAddress(const wchar_t *interfaceAlias, const char *tunnel_ip, int tunnel_mask)
+BOOL SetInterfaceAddress(const char* interfaceAlias, const char *tunnel_ip, int tunnel_mask)
 {
-    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAlias, NULL);
+    wchar_t interfaceAliasW[256];
+    DWORD dwForwardDest = inet_addr(tunnel_ip);
+    UINT8 linkPrefixLength = tunnel_mask;
+
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAliasW, NULL);
     if (ifIndex == 0)
     {
         return FALSE;
     }
-    DWORD dwForwardDest = inet_addr(tunnel_ip);
-    UINT8 linkPrefixLength = tunnel_mask;
     return _SetInterfaceAddress(ifIndex, dwForwardDest, linkPrefixLength);
 }
 
 // 设置网卡MTU
-BOOL SetInterfaceMTU(const wchar_t *interfaceAlias, DWORD mtu)
+BOOL SetInterfaceMTU(const char* interfaceAlias, DWORD mtu)
 {
-    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAlias, NULL);
+    wchar_t interfaceAliasW[256];
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAliasW, NULL);
     if (ifIndex == 0)
     {
         return FALSE;
@@ -137,11 +132,21 @@ BOOL SetInterfaceMTU(const wchar_t *interfaceAlias, DWORD mtu)
     return TRUE;
 }
 
-BOOL SetInterfaceDNS(const wchar_t *interfaceAlias, wchar_t *Domain, wchar_t *NameServer, wchar_t* SearchList)
+BOOL SetInterfaceDNS(const char* interfaceAlias, char *Domain, char *NameServer, char* SearchList)
 {
+    wchar_t interfaceAliasW[256];
+    wchar_t DomainW[256];
+    wchar_t NameServerW[256];
+    wchar_t SearchListW[256];
+
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+    swprintf(DomainW, sizeof(DomainW), L"%s", Domain);
+    swprintf(NameServerW, sizeof(NameServerW), L"%s", NameServer);
+    swprintf(SearchListW, sizeof(SearchListW), L"%s", SearchList);
+    
     // 获取网络接口索引
     MIB_IF_ROW2 row;
-    DWORD ifIndex = GetInterfaceIndex(interfaceAlias, &row);
+    DWORD ifIndex = GetInterfaceIndex(interfaceAliasW, &row);
     if (ifIndex == 0)
     {
         return FALSE;
@@ -250,17 +255,21 @@ BOOL _AddRoute(NET_IFINDEX ifIndex, DWORD dwForwardDest, DWORD dwForwardMask, DW
     return TRUE;
 }
 
-BOOL AddRoute(const wchar_t *interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway, DWORD dwForwardMetric1)
+BOOL AddRoute(const char* interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway, DWORD dwForwardMetric1)
 {
-    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAlias, NULL);
-    if (ifIndex == 0)
-    {
-        wprintf("Interface not found: %ls\n", interfaceAlias);
-        return FALSE;
-    }
+    wchar_t interfaceAliasW[256];
     DWORD dwForwardDest = inet_addr(destNetwork);
     DWORD dwForwardMask = inet_addr(netmask);
     DWORD dwForwardNextHop = inet_addr(gateway);
+
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+
+    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAliasW, NULL);
+    if (ifIndex == 0)
+    {
+        wprintf(L"Interface not found: %ls\n", interfaceAliasW);
+        return FALSE;
+    }
     return _AddRoute(ifIndex, dwForwardDest, dwForwardMask, dwForwardNextHop, dwForwardMetric1);
 }
 
@@ -314,17 +323,21 @@ BOOL _DeleteRoute(NET_IFINDEX ifIndex, DWORD dwForwardDest, DWORD dwForwardMask,
     return TRUE;
 }
 
-BOOL DeleteRoute(const wchar_t *interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway)
+BOOL DeleteRoute(const char *interfaceAlias, const char *destNetwork, const char *netmask, const char *gateway)
 {
-    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAlias, NULL);
-    if (ifIndex == 0)
-    {
-        wprintf("Interface not found: %ls\n", interfaceAlias);
-        return FALSE;
-    }
+    wchar_t interfaceAliasW[256];
     DWORD dwForwardDest = inet_addr(destNetwork);
     DWORD dwForwardMask = inet_addr(netmask);
     DWORD dwForwardNextHop = inet_addr(gateway);
+
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+
+    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAliasW, NULL);
+    if (ifIndex == 0)
+    {
+        wprintf(L"Interface not found: %ls\n", interfaceAliasW);
+        return FALSE;
+    }
     return _DeleteRoute(ifIndex, dwForwardDest, dwForwardMask, dwForwardNextHop);
 }
 
@@ -404,17 +417,20 @@ BOOL _ModifyRoute(NET_IFINDEX ifIndex, DWORD dwForwardDest, DWORD dwForwardMask,
     return TRUE;
 }
 
-BOOL ModifyRoute(const wchar_t* interfaceAlias, const char* destNetwork, const char* netmask, const char* newGateway)
+BOOL ModifyRoute(const char* interfaceAlias, const char* destNetwork, const char* netmask, const char* newGateway)
 {
-    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAlias, NULL);
-    if (ifIndex == 0)
-    {
-        wprintf("Interface not found: %ls\n", interfaceAlias);
-        return FALSE;
-    }
+    wchar_t interfaceAliasW[256];
     DWORD dwForwardDest = inet_addr(destNetwork);
     DWORD dwForwardMask = inet_addr(netmask);
     DWORD dwForwardNextHop = inet_addr(newGateway);
+
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAliasW, NULL);
+    if (ifIndex == 0)
+    {
+        wprintf(L"Interface not found: %ls\n", interfaceAliasW);
+        return FALSE;
+    }
     return _ModifyRoute(ifIndex, dwForwardDest, dwForwardMask, dwForwardNextHop);
 }
 
@@ -467,12 +483,15 @@ BOOL _CleanRoute(NET_IFINDEX ifIndex)
 }
 
 // 清理路由
-BOOL CleanRoute(const wchar_t* interfaceAlias)
+BOOL CleanRoute(const char* interfaceAlias)
 {
-    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAlias, NULL);
+    wchar_t interfaceAliasW[256];
+    swprintf(interfaceAliasW, sizeof(interfaceAliasW), L"%s", interfaceAlias);
+    
+    NET_IFINDEX ifIndex = GetInterfaceIndex(interfaceAliasW, NULL);
     if (ifIndex == 0)
     {
-        wprintf("Interface not found: %ls\n", interfaceAlias);
+        wprintf(L"Interface not found: %ls\n", interfaceAliasW);
         return FALSE;
     }
     return _CleanRoute(ifIndex);

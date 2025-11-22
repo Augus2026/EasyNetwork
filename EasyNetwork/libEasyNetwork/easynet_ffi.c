@@ -83,14 +83,14 @@ void join_network(
 
     peer->server_ip = _strdup(server_info.reply_address);
     peer->server_port = server_info.reply_port;
-    peer->name = _wcsdup(L"EasyNetwork");
-    peer->desc = _wcsdup(L"EasyNetwork Peer");
-    peer->tunnel_ip = strdup(ip);
+    peer->name = _strdup(ifname);
+    peer->desc = _strdup(ifdesc);
+    peer->tunnel_ip = _strdup(ip);
     peer->tunnel_mask = atoi(netmask);
     peer->mtu = atoi(mtu);
-    peer->domain = strdup(domain);
-    peer->name_server = strdup(nameServer);
-    peer->search_list = strdup(searchList);
+    peer->domain = _strdup(domain);
+    peer->name_server = _strdup(nameServer);
+    peer->search_list = _strdup(searchList);
 
     // 创建线程执行build_peer
     HANDLE thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThreadProc, peer, 0, NULL);

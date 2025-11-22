@@ -5,17 +5,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <winsock2.h>
-#include "wintun_peer.h"
 
 #define WOLFSSL_USER_SETTINGS
 #include "wolfssl/ssl.h"
+
+#include "wintun_peer.h"
+#include "message.h"
 
 typedef struct peer_info_ {
     char* server_ip; // 服务器IP地址
     int server_port; // 服务器端口
 
-    wchar_t* name; // 网卡名称
-    wchar_t* desc; // 网卡描述
+    char* name; // 网卡名称
+    char* desc; // 网卡描述
     char* tunnel_ip; // 网卡IP地址
     int tunnel_mask; // 网卡掩码
 
@@ -38,5 +40,14 @@ void ssl_cleanup(peer_info_t* peer);
 int ssl_read_data(peer_info_t* peer, char* data, int size);
 // write data
 int ssl_write_data(peer_info_t* peer, char* data, int size);
+
+message_head_t* recv_message(peer_info_t* peer);
+int send_message(peer_info_t* peer, const char* data, int size);
+
+void
+PrintPacket(_In_ const BYTE *Packet, _In_ DWORD PacketSize);
+
+void
+RegisterPeer(peer_info_t* peer);
 
 #endif // TLS_CLIENT_H_
