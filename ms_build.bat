@@ -21,7 +21,7 @@ if /i "%~1"=="lib" (
     cmake --build ./build --config Release
     popd
 ) else if /i "%~1"=="flutter" (
-    echo Building EasyNetwork library...
+    echo Building EasyNetwork flutter application...
 
     pushd .\EasyNetwork\flutter
     @REM flutter pub run ffigen --config ffigen.yaml
