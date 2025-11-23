@@ -1,5 +1,6 @@
 use rusqlite::{Connection, Result, params};
 use serde_json;
+use log::{info, error};
 
 use crate::network::network_config::{
     BasicInfo,
@@ -59,6 +60,9 @@ pub fn save_network_config(config: &NetworkConfig) -> Result<()> {
                 cert_info_json,
             ],
         )?;
+
+        // print config
+        info!("Successfully saved network config: {:?}", config);
     }
     Ok(())
 }
@@ -91,6 +95,10 @@ pub fn load_all_networks() -> Result<Vec<NetworkConfig>> {
         for network in network_iter {
             networks.push(network?);
         }
+        
+        // print config
+        info!("load networks: {:?}", networks);
+
         Ok(networks)
     } else {
         Ok(Vec::new())

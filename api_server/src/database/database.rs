@@ -58,7 +58,6 @@ pub async fn load_all_config() -> Result<()> {
 }
 
 pub async fn save_all_config() {
-
     let config = DEVICE_CONFIG.lock().unwrap();
     if let Err(e) = crate::database::save_all_devices(&config) {
         error!("Auto-save failed: {}", e);
@@ -75,7 +74,7 @@ pub async fn save_all_config() {
 }
 
 pub async fn start_auto_save() {
-    let mut interval = interval(Duration::from_secs(300));
+    let mut interval = interval(Duration::from_secs(30));
     
     loop {
         interval.tick().await;

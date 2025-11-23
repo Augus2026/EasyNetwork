@@ -1,4 +1,5 @@
 use rusqlite::{Connection, Result, params};
+use log::{info, error};
 
 use crate::device::{
     DeviceConfig
@@ -53,6 +54,9 @@ pub fn save_device_config(config: &DeviceConfig) -> Result<()> {
                 config.last_updated.to_rfc3339()
             ],
         )?;
+
+        // print config
+        info!("Successfully saved device config: {:?}", config);
     }
     Ok(())
 }
@@ -85,6 +89,10 @@ pub fn load_all_devices() -> Result<Vec<DeviceConfig>> {
         for device in device_iter {
             devices.push(device?);
         }
+        
+        // print config
+        info!("load devices: {:?}", devices);
+
         Ok(devices)
     } else {
         Ok(Vec::new())

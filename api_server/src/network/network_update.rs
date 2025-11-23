@@ -8,6 +8,7 @@ use crate::network::{
     DhcpInfo,
     DnsInfo,
     ServerInfo,
+    CertInfo,
     NETWORK_CONFIG,
 };
 
@@ -18,6 +19,7 @@ pub struct UpdateNetworkRequest {
     pub dhcp_info: DhcpInfo,
     pub dns_info: DnsInfo,
     pub server_info: ServerInfo,
+    pub cert_info: CertInfo,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,6 +48,7 @@ pub async fn network_update(
         network.dhcp_info = body.dhcp_info.clone();
         network.dns_info = body.dns_info.clone();
         network.server_info = body.server_info.clone();
+        network.cert_info = body.cert_info.clone();
 
         HttpResponse::Ok().json(SuccessResponse {
             status: "success".to_string(),

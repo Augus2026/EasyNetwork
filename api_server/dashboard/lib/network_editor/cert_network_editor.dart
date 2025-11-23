@@ -33,6 +33,27 @@ class _CertNetworkEditorState extends State<CertNetworkEditor> {
   final TextEditingController _serverKeyController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _loadCertificatesFromNetworkInfo();
+  }
+
+  void _loadCertificatesFromNetworkInfo() {
+    _caCertController.text = widget.network.cert.caCert;
+    _caKeyController.text = widget.network.cert.caKey;
+    _serverCertController.text = widget.network.cert.serverCert;
+    _serverKeyController.text = widget.network.cert.serverKey;
+  }
+
+  void _updateNetworkInfoCertificates() {
+    widget.network.cert = widget.network.cert;
+    widget.network.cert.caCert = _caCertController.text;
+    widget.network.cert.caKey = _caKeyController.text;
+    widget.network.cert.serverCert = _serverCertController.text;
+    widget.network.cert.serverKey = _serverKeyController.text;
+  }
+
+  @override
   void dispose() {
     _caCertController.dispose();
     _caKeyController.dispose();
@@ -140,6 +161,7 @@ class _CertNetworkEditorState extends State<CertNetworkEditor> {
               border: OutlineInputBorder(),
               contentPadding: const EdgeInsets.all(12),
             ),
+            onChanged: (_) => _updateNetworkInfoCertificates(),
           ),
         ],
       ),
