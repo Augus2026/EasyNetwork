@@ -3,6 +3,7 @@ use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicU8, Ordering};
 use rand::Rng;
+use log::{info, error};
 
 use crate::network::{
     BasicInfo,
@@ -114,7 +115,7 @@ async fn member_join(
     req: HttpRequest,
     body: web::Json<MemberJoinRequest>,
 ) -> impl Responder {
-    println!("member_join path {:?} body {:?}", path, body);
+    info!("member_join path {:?} body {:?}", path, body);
 
     let network_id = path.into_inner();
     let mut config = match NETWORK_CONFIG.lock() {

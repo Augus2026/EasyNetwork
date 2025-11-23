@@ -1,5 +1,6 @@
 use actix_web::{put, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
+use log::{info, error};
 
 use crate::network::{
     BasicInfo,
@@ -36,7 +37,7 @@ pub async fn network_update(
             return HttpResponse::InternalServerError().body("Failed to acquire network config lock");
         }
     };
-    println!("body: {:?}", body);
+    info!("body: {:?}", body);
 
     // 更新各个字段
     if let Some(network) = config.iter_mut().find(|net| net.basic_info.id == network_id) {

@@ -2,6 +2,10 @@ use actix_web::{App, HttpServer, middleware::Logger, web, HttpResponse};
 use actix_files::Files;
 use actix_cors::Cors;
 use std::env;
+use std::fs::OpenOptions;
+use std::io::Write;
+use env_logger::{Builder, Target};
+use log::{info, warn, error};
 
 mod device;
 mod member;
@@ -18,6 +22,7 @@ async fn main() -> std::io::Result<()> {
     let mut server_port = DEFAULT_SERVER_PORT;
     let mut dashboard_path = DEFAULT_DASHBOARD_PATH.to_string();
     let mut db_path = "./config.db".to_string();
+    let mut log_path = "./api_server.log".to_string();  // 默认日志路径
 
     // 解析命令行参数
     let args: Vec<String> = env::args().collect();
@@ -45,23 +50,38 @@ async fn main() -> std::io::Result<()> {
             break;
         }
     }
+    for i in 1..args.len() {
+        if args[i] == "--log-path" && i + 1 < args.len() {
+            log_path = args[i + 1].clone();
+            break;
+        }
+    }
 
-    // 初始化日志
-    std::env::set_var("RUST_LOG", "actix_web=info");
-    env_logger::init();
-    println!("Server started, listening on port: {}:{} dashboard path: {}", server_ip, server_port, dashboard_path);
+    let log_file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_path.clone())
+        .expect("unable to open log file");
+
+    Builder::new()
+        .target(Target::Pipe(Box::new(log_file)))
+        .filter_level(log::LevelFilter::Info)
+        .init();
+
+    info!("Server started, listening on port: {}:{} dashboard path: {}, log path: {}", 
+             server_ip, server_port, dashboard_path, log_path);
 
     // 初始化数据库
     if let Err(e) = database::init_database(db_path) {
-        eprintln!("Failed to initialize database: {}", e);
+        error!("Failed to initialize database: {}", e);
         return Err(std::io::Error::new(std::io::ErrorKind::Other, e.to_string()));
     }
 
     // 加载所有配置
     if let Err(e) = database::load_all_config().await {
-        eprintln!("Failed to load device configuration: {}", e);
+        error!("Failed to load device configuration: {}", e);
     } else {
-        println!("Device configuration loaded successfully");
+        info!("Device configuration loaded successfully");
     }
 
     // 启动定时保存任务
@@ -111,7 +131,7 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await;
 
-    println!("Server stopped");
+    info!("Server stopped");
     // 取消定时保存任务
     auto_save_handle.abort();
     // 保存所有配置

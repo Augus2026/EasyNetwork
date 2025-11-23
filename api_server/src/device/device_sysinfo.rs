@@ -1,5 +1,6 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
+use log::{info, error};
 
 use crate::device::{
     DeviceInfo,
@@ -22,7 +23,7 @@ struct SuccessResponse {
 async fn report_device_sysinfo(
     body: web::Json<SysInfoRequest>
 ) -> impl Responder {
-    println!("report_device_sysinfo {:?}", body);
+    info!("report_device_sysinfo {:?}", body);
 
     let mut config = DEVICE_CONFIG.lock().unwrap();
     let device = config.iter_mut().find(|v| v.uuid == body.uuid);

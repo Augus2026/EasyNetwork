@@ -2,6 +2,7 @@ use rusqlite::{Connection, Result};
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 use tokio::time::{interval, Duration};
+use log::{info, error};
 
 use crate::device::{
     DEVICE_CONFIG,
@@ -38,20 +39,20 @@ pub fn init_database(db_path: String) -> Result<()> {
 
 pub async fn load_all_config() -> Result<()> {
     let devices = load_all_devices().map_err(|e| {
-        eprintln!("Failed to load devices from database: {}", e);
+        error!("Failed to load devices from database: {}", e);
         e
     })?;
     let mut config = DEVICE_CONFIG.lock().unwrap();
     *config = devices;
-    println!("Successfully loaded {} devices from database", config.len());
+    info!("Successfully loaded {} devices from database", config.len());
 
     let networks = load_all_networks().map_err(|e| {
-        eprintln!("Failed to load networks from database: {}", e);
+        error!("Failed to load networks from database: {}", e);
         e
     })?;
     let mut config = NETWORK_CONFIG.lock().unwrap();
     *config = networks;
-    println!("Successfully loaded {} networks from database", config.len());
+    info!("Successfully loaded {} networks from database", config.len());
     
     Ok(())
 }
@@ -60,16 +61,16 @@ pub async fn save_all_config() {
 
     let config = DEVICE_CONFIG.lock().unwrap();
     if let Err(e) = crate::database::save_all_devices(&config) {
-        eprintln!("Auto-save failed: {}", e);
+        error!("Auto-save failed: {}", e);
     } else {
-        println!("Auto-saved {} devices to database", config.len());
+        info!("Auto-saved {} devices to database", config.len());
     }
 
     let config = NETWORK_CONFIG.lock().unwrap();
     if let Err(e) = crate::database::save_all_networks(&config) {
-        eprintln!("Auto-save failed: {}", e);
+        error!("Auto-save failed: {}", e);
     } else {
-        println!("Auto-saved {} networks to database", config.len());
+        info!("Auto-saved {} networks to database", config.len());
     }
 }
 

@@ -33,7 +33,7 @@ if /i "%~1"=="lib" (
 
     pushd .\api_server
     cargo clean
-    cargo build --release
+    cargo build
     popd
 ) else if /i "%~1"=="mtls_server" (
     echo Building mTLS server...

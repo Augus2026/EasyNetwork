@@ -1,5 +1,6 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
+use log::{info, error};
 
 use crate::network::{
     MemberInfo,
@@ -14,7 +15,7 @@ struct SuccessResponse {
 async fn member_leave(
     path: web::Path<(String, String)>,
 ) -> impl Responder {
-    println!("member_leave {:?}", path);
+    info!("member_leave {:?}", path);
 
     let (network_id, member_id) = path.into_inner();
     let mut config = match NETWORK_CONFIG.lock() {
