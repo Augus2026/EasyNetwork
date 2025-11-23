@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'network_member.dart';
 import '../network_editor/network_editor.dart';
 import 'network_info.dart';
@@ -66,9 +67,29 @@ class _NetworkDetailState extends State<NetworkDetail> {
                       'Network ID',
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
-                    Text(
-                      widget.network.basic.id,
-                      style: const TextStyle(fontSize: 18),
+                    Row(
+                      children: [
+                        Text(
+                          widget.network.basic.id,
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.content_copy, size: 16),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: widget.network.basic.id));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Network ID copied to clipboard'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          tooltip: 'Copy Network ID',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -79,9 +100,29 @@ class _NetworkDetailState extends State<NetworkDetail> {
                       'Network Name',
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
-                    Text(
-                      widget.network.basic.name,
-                      style: const TextStyle(fontSize: 24),
+                    Row(
+                      children: [
+                        Text(
+                          widget.network.basic.name,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.content_copy, size: 16),
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: widget.network.basic.name));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Network Name copied to clipboard'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          tooltip: 'Copy Network Name',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                        ),
+                      ],
                     ),
                   ],
                 ),
