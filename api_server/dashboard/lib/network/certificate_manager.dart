@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../web.dart';
 
 // 证书文件数据类
 class CertificateFile {
@@ -10,7 +13,7 @@ class CertificateFile {
 }
 
 // 证书配置组件
-class CertificateManager extends StatelessWidget {
+class CertificateManager extends StatefulWidget {
   final String networkId;
   final String networkName;
 
@@ -19,6 +22,30 @@ class CertificateManager extends StatelessWidget {
     required this.networkId,
     required this.networkName,
   }) : super(key: key);
+
+  @override
+  _CertificateManagerState createState() => _CertificateManagerState();
+}
+
+class _CertificateManagerState extends State<CertificateManager> {
+  // 证书内容控制器
+  final TextEditingController _caCertController = TextEditingController();
+  final TextEditingController _caKeyController = TextEditingController();
+  final TextEditingController _serverCertController = TextEditingController();
+  final TextEditingController _serverKeyController = TextEditingController();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+  String? _successMessage;
+
+  @override
+  void dispose() {
+    _caCertController.dispose();
+    _caKeyController.dispose();
+    _serverCertController.dispose();
+    _serverKeyController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +60,73 @@ class CertificateManager extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           
+          // 显示错误消息
+          if (_errorMessage != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                border: Border.all(color: Colors.red.shade200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error, color: Colors.red.shade600),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(color: Colors.red.shade800),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _errorMessage = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          
+          // 显示成功消息
+          if (_successMessage != null)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                border: Border.all(color: Colors.green.shade200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green.shade600),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _successMessage!,
+                      style: TextStyle(color: Colors.green.shade800),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      setState(() {
+                        _successMessage = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          
+          if (_errorMessage != null || _successMessage != null)
+            const SizedBox(height: 20),
+          
           // CA证书配置
           _buildCertificateCard(
             title: 'CA Certificate',
@@ -41,7 +135,7 @@ class CertificateManager extends StatelessWidget {
               CertificateFile('ca-cert.pem', 'CA Root Certificate'),
               CertificateFile('ca-key.pem', 'CA Private Key'),
             ],
-            context: context,
+            controllers: [_caCertController, _caKeyController],
           ),
           
           const SizedBox(height: 20),
@@ -54,13 +148,13 @@ class CertificateManager extends StatelessWidget {
               CertificateFile('server-cert.pem', 'Server Certificate'),
               CertificateFile('server-key.pem', 'Server Private Key'),
             ],
-            context: context,
+            controllers: [_serverCertController, _serverKeyController],
           ),
           
           const SizedBox(height: 20),
           
-          // 证书操作按钮
-          _buildCertificateActions(),
+          // 提交按钮
+          _buildSubmitButton(),
         ],
       ),
     );
@@ -70,7 +164,7 @@ class CertificateManager extends StatelessWidget {
     required String title,
     required IconData icon,
     required List<CertificateFile> files,
-    required BuildContext context,
+    required List<TextEditingController> controllers,
   }) {
     return Card(
       elevation: 2,
@@ -93,61 +187,53 @@ class CertificateManager extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            ...files.map((file) => _buildCertificateFileItem(file, context)),
+            ...files.asMap().entries.map((entry) => 
+              _buildCertificateFileItem(entry.value, controllers[entry.key])
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCertificateFileItem(CertificateFile file, BuildContext context) {
+  Widget _buildCertificateFileItem(CertificateFile file, TextEditingController controller) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  file.filename,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  file.description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
+          Text(
+            file.filename,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.content_copy, size: 16),
-            onPressed: () => _copyCertificateFile(file.filename, context),
-            tooltip: 'Copy file path',
+          const SizedBox(height: 4),
+          Text(
+            file.description,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.download, size: 16),
-            onPressed: () => _downloadCertificateFile(file.filename, context),
-            tooltip: 'Download file',
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            maxLines: 6,
+            minLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Paste ${file.filename} content here...',
+              border: OutlineInputBorder(),
+              contentPadding: const EdgeInsets.all(12),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCertificateActions() {
+  Widget _buildSubmitButton() {
     return Card(
       elevation: 2,
       child: Padding(
@@ -156,58 +242,86 @@ class CertificateManager extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Certificate Actions',
+              'Upload Certificates',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: _generateNewCertificates,
-                  icon: const Icon(Icons.add_circle_outline),
-                  label: const Text('Generate New Certificates'),
-                ),
-                const SizedBox(width: 16),
-                ElevatedButton.icon(
-                  onPressed: _uploadCertificates,
-                  icon: const Icon(Icons.upload_file),
-                  label: const Text('Upload Certificates'),
-                ),
-              ],
-            ),
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton.icon(
+                    onPressed: _uploadCertificates,
+                    icon: const Icon(Icons.upload_file),
+                    label: const Text('Submit Certificate Data'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                    ),
+                  ),
           ],
         ),
       ),
     );
   }
 
-  void _copyCertificateFile(String filename, BuildContext context) {
-    Clipboard.setData(ClipboardData(text: filename));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$filename path copied to clipboard'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  Future<void> _uploadCertificates() async {
+    // 验证输入
+    if (_caCertController.text.isEmpty ||
+        _caKeyController.text.isEmpty ||
+        _serverCertController.text.isEmpty ||
+        _serverKeyController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please fill in all certificate fields';
+      });
+      return;
+    }
 
-  void _downloadCertificateFile(String filename, BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Downloading $filename...'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
 
-  void _generateNewCertificates() {
-    print('Generating new certificates for network: $networkName ($networkId)');
-  }
+    try {
+      final Map<String, dynamic> certificateData = {
+        'network_id': widget.networkId,
+        'ca_cert': _caCertController.text,
+        'ca_key': _caKeyController.text,
+        'server_cert': _serverCertController.text,
+        'server_key': _serverKeyController.text,
+      };
 
-  void _uploadCertificates() {
-    print('Uploading certificates for network: $networkName ($networkId)');
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/v1/networks/${widget.networkId}/certificates'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(certificateData),
+      );
+
+      if (response.statusCode == 200) {
+        final result = jsonDecode(response.body) as Map<String, dynamic>;
+        if (result['status'] == 'success') {
+          setState(() {
+            _successMessage = 'Certificates uploaded successfully!';
+          });
+        } else {
+          setState(() {
+            _errorMessage = result['message'] ?? 'Failed to upload certificates';
+          });
+        }
+      } else {
+        setState(() {
+          _errorMessage = 'HTTP error: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error uploading certificates: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 }
