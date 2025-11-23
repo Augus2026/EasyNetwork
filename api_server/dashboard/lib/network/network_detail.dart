@@ -4,6 +4,7 @@ import 'network_member.dart';
 import '../network_editor/network_editor.dart';
 import 'network_info.dart';
 import 'network_http.dart';
+import 'certificate_manager.dart'; // 导入证书管理文件
 
 class NetworkDetail extends StatefulWidget {
   final NetworkInfo network;
@@ -167,8 +168,8 @@ class _NetworkDetailState extends State<NetworkDetail> {
             label: Text('Settings'),
           ),
           NavigationRailDestination(
-            icon: Icon(Icons.rule),
-            label: Text('Flow Rules'),
+            icon: Icon(Icons.security),
+            label: Text('Certificates'),
           ),
         ],
       )
@@ -195,8 +196,11 @@ class _NetworkDetailState extends State<NetworkDetail> {
                 ),
               ),
             ),
-            // Flow Rules Content
-            Container(),
+            // Certificates Content - 使用新的证书管理组件
+            CertificateManager(
+              networkId: widget.network.basic.id,
+              networkName: widget.network.basic.name,
+            ),
           ],
         ),
       ),
