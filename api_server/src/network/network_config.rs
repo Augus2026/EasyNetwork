@@ -48,6 +48,15 @@ pub struct ServerInfo {
     pub reply_port: String,
 }
 
+// cert info
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct CertInfo {
+    pub ca_cert: String,
+    pub ca_key: String,
+    pub server_cert: String,
+    pub server_key: String,
+}
+
 // member info
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct MemberInfo {
@@ -80,6 +89,8 @@ pub struct NetworkConfig {
     pub server_info: ServerInfo,
     // member info
     pub member_info: Vec<MemberInfo>,
+    // cert info
+    pub cert_info: CertInfo,
 }
 
 lazy_static! {

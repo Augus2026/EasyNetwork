@@ -156,19 +156,54 @@ class ServerInfo {
   }
 }
 
+class CertInfo {
+  String caCert;
+  String caKey;
+  String serverCert;
+  String serverKey;
+
+  CertInfo({
+    required this.caCert,
+    required this.caKey,
+    required this.serverCert,
+    required this.serverKey,
+  });
+
+  factory CertInfo.fromJson(Map<String, dynamic> json) {
+    return CertInfo(
+      caCert: json['ca_cert'],
+      caKey: json['ca_key'],
+      serverCert: json['server_cert'],
+      serverKey: json['server_key'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'ca_cert': caCert,
+      'ca_key': caKey,
+      'server_cert': serverCert,
+      'server_key': serverKey,
+    };
+  }
+}
+
 class NetworkInfo {
   BasicInfo basic;
   List<RouteInfo> routes;
   DhcpInfo dhcp;
   DnsInfo dns;
   ServerInfo server;
+  CertInfo cert;
 
   NetworkInfo({
     required this.basic,
     required this.routes,
     required this.dhcp,
     required this.dns,
-    required this.server});
+    required this.server,
+    required this.cert,
+  });
 
   factory NetworkInfo.fromJson(Map<String, dynamic> json) {
     return NetworkInfo(
@@ -177,6 +212,7 @@ class NetworkInfo {
       dhcp: DhcpInfo.fromJson(json['dhcp_info']),
       dns: DnsInfo.fromJson(json['dns_info']),
       server: ServerInfo.fromJson(json['server_info']),
+      cert: CertInfo.fromJson(json['cert_info']),
     );
   }
 
@@ -187,6 +223,7 @@ class NetworkInfo {
       'dhcp_info': dhcp.toJson(),
       'dns_info': dns.toJson(),
       'server_info': server.toJson(),
+      'cert_info': cert.toJson(),
     };
   }
 

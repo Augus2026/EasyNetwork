@@ -8,6 +8,7 @@ use crate::network::network_config::{
     DnsInfo,
     ServerInfo,
     MemberInfo,
+    CertInfo,
     NetworkConfig
 };
 
@@ -23,7 +24,8 @@ pub fn init_network_database(conn: &Connection) -> Result<()> {
             dhcp_info TEXT,
             dns_info TEXT,
             server_info TEXT,
-            member_info TEXT
+            member_info TEXT,
+            cert_info TEXT
         )",
         [],
     )?;
@@ -40,11 +42,12 @@ pub fn save_network_config(config: &NetworkConfig) -> Result<()> {
         let dns_info_json = serde_json::to_string(&config.dns_info).unwrap();
         let server_info_json = serde_json::to_string(&config.server_info).unwrap();
         let member_info_json = serde_json::to_string(&config.member_info).unwrap();
+        let cert_info_json = serde_json::to_string(&config.cert_info).unwrap();
 
         conn.execute(
             "INSERT OR REPLACE INTO network_config 
-            (id, basic_info, route_info, dhcp_info, dns_info, server_info, member_info)
-            VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (id, basic_info, route_info, dhcp_info, dns_info, server_info, member_info, cert_info)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             params![
                 config.basic_info.id.as_str(),
                 basic_info_json,
@@ -52,7 +55,8 @@ pub fn save_network_config(config: &NetworkConfig) -> Result<()> {
                 dhcp_info_json,
                 dns_info_json,
                 server_info_json,
-                member_info_json
+                member_info_json,
+                cert_info_json,
             ],
         )?;
     }
@@ -70,6 +74,7 @@ pub fn load_all_networks() -> Result<Vec<NetworkConfig>> {
             let dns_info: DnsInfo = serde_json::from_str(&row.get::<_, String>(4)?).unwrap();
             let server_info: ServerInfo = serde_json::from_str(&row.get::<_, String>(5)?).unwrap();
             let member_info: Vec<MemberInfo> = serde_json::from_str(&row.get::<_, String>(6)?).unwrap();
+            let cert_info: CertInfo = serde_json::from_str(&row.get::<_, String>(7)?).unwrap();
 
             Ok(NetworkConfig {
                 basic_info,
@@ -78,6 +83,7 @@ pub fn load_all_networks() -> Result<Vec<NetworkConfig>> {
                 dns_info,
                 server_info,
                 member_info,
+                cert_info,
             })
         })?;
         

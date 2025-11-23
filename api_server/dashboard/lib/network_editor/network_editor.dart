@@ -6,6 +6,7 @@ import 'route_network_editor.dart';
 import 'dhcp_network_editor.dart';
 import 'dns_network_editor.dart';
 import 'server_network_editor.dart';
+import 'cert_network_editor.dart';
 
 // 网络设置
 class NetworkEditor extends StatefulWidget {
@@ -36,7 +37,16 @@ class _NetworkEditorState extends State<NetworkEditor> {
         ManagedRoutesNetworkEditor(network: widget.network),
         Ipv4AutoAssignNetworkEditor(network: widget.network),
         DnsNetworkEditor(network: widget.network),
+        const Text(
+          'Reply Server',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         ServerNetworkEditor(network: widget.network),
+        const Text(
+          'Certificate',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        CertNetworkEditor(network: widget.network),
       ],
     );
   }

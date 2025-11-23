@@ -44,14 +44,10 @@ class _ServerNetworkEditorState extends State<ServerNetworkEditor> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Server',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
             TextField(
               controller: replyAddressController,
               decoration: InputDecoration(
-                labelText: 'Reply Server',
+                labelText: 'Reply Address',
                 hintText: widget.network.server.replyAddress,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
               ),

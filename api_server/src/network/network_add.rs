@@ -7,6 +7,8 @@ use crate::network::{
     DhcpInfo,
     DnsInfo,
     ServerInfo,
+    MemberInfo,
+    CertInfo,
     NetworkConfig,
     NETWORK_CONFIG,
 };
@@ -83,6 +85,12 @@ pub async fn network_add(
             reply_port: "1001".to_string(),
         },
         member_info: vec![],
+        cert_info: CertInfo {
+            ca_cert: "".to_string(),
+            ca_key: "".to_string(),
+            server_cert: "".to_string(),
+            server_key: "".to_string(),
+        },
     };
     network_config.push(new_network.clone());
     
